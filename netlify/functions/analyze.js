@@ -1,255 +1,120 @@
-const API_KEY = "sk-ant-api03-FynEuYmi6n-aNRpIIIXGESRNAT1Hex410b8Tz5cs7uA2jJp9aZhZg2mV031msKOkTYopm0gdNfyS7Nwq8t9NTQ--Cz3DAAA";
+const API_KEY = "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";
 
 const ARCHETYPES = [
-  "حصان الشغل",
-  "عبقري لكنه منهك",
-  "مدير بدون منصب",
-  "صاحب الحضور الخطير",
-  "القائد في وقت الأزمات فقط",
-  "صانع القادة",
-  "ملك العلاقات",
-  "روح الفريق",
-  "وجه الشركة",
-  "الموظف السياسي",
-  "سارق المجهود",
-  "ضحية كل شي",
-  "الضائع مهنيًا",
-  "العائد المتردد",
-  "التنين النائم",
-  "الفلتة",
-  "الموهبة المهملة",
-  "جاهز بس تنتظر",
-  "المنقطع المتمسّك",
-  "العرّاب",
-  "الخبير الصامت",
-  "المتواضع",
-  "السائح المهني",
-  "صائد الفرص",
-  "الصاروخ",
-  "المخضرم",
-  "الكسول",
-  "صاحب الكاريزما",
-  "الأسطورة في عقله",
-  "المتلاعب",
+  "حصان الشغل", "عبقري لكنه منهك", "مدير بدون منصب",
+  "صاحب الحضور الخطير", "القائد في وقت الأزمات فقط", "صانع القادة",
+  "ملك العلاقات", "روح الفريق", "وجه الشركة", "الموظف السياسي",
+  "سارق المجهود", "ضحية كل شي", "الضائع مهنيًا", "العائد المتردد",
+  "التنين النائم", "الفلتة", "الموهبة المهملة", "جاهز بس تنتظر",
+  "المنقطع المتمسّك", "العرّاب", "الخبير الصامت", "المتواضع",
+  "السائح المهني", "صائد الفرص", "الصاروخ", "المخضرم",
+  "الكسول", "صاحب الكاريزما", "الأسطورة في عقله", "المتلاعب",
   "المخطّط اللي ما ينفّذ"
 ];
 
 exports.handler = async (event) => {
-
   if (event.httpMethod !== "POST") {
-    return {
-      statusCode: 405,
-      body: "Method Not Allowed"
-    };
+    return { statusCode: 405, body: "Method Not Allowed" };
   }
 
   try {
-
     const { cvText } = JSON.parse(event.body);
 
     if (!cvText || cvText.length < 50) {
-
       return {
         statusCode: 400,
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          error: "السيرة الذاتية قصيرة جداً"
-        })
+        body: JSON.stringify({ error: "السيرة الذاتية قصيرة جداً" })
       };
-
     }
 
-    const prompt = `
-أنت محلل مهني سعودي خبير.
+    const prompt = `أنت محلل مهني سعودي خبير. حلل السيرة الذاتية التالية وأعطني تحليلاً مفصلاً.
 
-حلل السيرة الذاتية التالية بشكل ذكي وعميق:
-
+السيرة الذاتية:
 ${cvText}
 
-اختر شخصية واحدة فقط من القائمة التالية:
+قائمة الشخصيات المتاحة:
 ${ARCHETYPES.join("، ")}
 
-أجب بـ JSON فقط بدون أي كلام إضافي.
-
+أجب بـ JSON فقط بالشكل التالي (بدون أي نص خارج الـ JSON):
 {
-  "archetype": "اسم الشخصية",
-  "archetype_en": "English Name",
-  "archetype_emoji": "🔥",
-  "description": "وصف قوي من 3 جمل",
-  "market_view": "كيف يراك السوق",
-  "years_experience": 5,
-  "companies_count": 3,
-  "career_trend": "صاعد",
-  "market_demand": 88,
-
-  "strengths": [
-    "نقطة قوة",
-    "نقطة قوة",
-    "نقطة قوة",
-    "نقطة قوة",
-    "نقطة قوة"
-  ],
-
-  "weaknesses": [
-    "نقطة ضعف",
-    "نقطة ضعف",
-    "نقطة ضعف",
-    "نقطة ضعف",
-    "نقطة ضعف"
-  ],
-
+  "archetype": "اسم الشخصية من القائمة",
+  "archetype_en": "The Archetype Name in English",
+  "archetype_emoji": "إيموجي يعبر عن الشخصية",
+  "description": "وصف سينمائي للشخصية من 3 جمل بلهجة سعودية خليجية مباشر وجريء",
+  "market_view": "جملة واحدة كيف يراك السوق",
+  "years_experience": رقم,
+  "companies_count": رقم,
+  "career_trend": "صاعد أو واقف أو نازل",
+  "market_demand": رقم من 0 لـ 100,
+  "strengths": ["نقطة قوة 1", "نقطة قوة 2", "نقطة قوة 3", "نقطة قوة 4", "نقطة قوة 5"],
+  "weaknesses": ["نقطة ضعف 1", "نقطة ضعف 2", "نقطة ضعف 3", "نقطة ضعف 4", "نقطة ضعف 5"],
   "cv_insights": [
-    {
-      "icon":"📈",
-      "label":"اتجاه المسيرة",
-      "text":"تحليل"
-    },
-    {
-      "icon":"🏢",
-      "label":"جودة الشركات",
-      "text":"تحليل"
-    }
+    {"icon": "📈", "label": "اتجاه المسيرة", "text": "تحليل مسار الشخص"},
+    {"icon": "🏢", "label": "جودة الشركات", "text": "تحليل الشركات"},
+    {"icon": "⚡", "label": "طريقة كتابة الإنجازات", "text": "تحليل الكتابة"},
+    {"icon": "🎯", "label": "الفجوة الأهم", "text": "أهم ملاحظة"}
   ],
-
-  "recommendations":[
-    {
-      "title":"توصية",
-      "desc":"شرح"
-    },
-    {
-      "title":"توصية",
-      "desc":"شرح"
-    }
+  "recommendations": [
+    {"title": "عنوان التوصية 1", "desc": "شرح مختصر"},
+    {"title": "عنوان التوصية 2", "desc": "شرح مختصر"},
+    {"title": "عنوان التوصية 3", "desc": "شرح مختصر"}
   ],
-
-  "jobs":[
-    {
-      "title":"Operations Manager",
-      "reason":"سبب مناسب",
-      "salary":"18K–25K SAR"
-    },
-    {
-      "title":"Business Operations Lead",
-      "reason":"سبب مناسب",
-      "salary":"25K–35K SAR"
-    }
+  "career_paths": [
+    {"icon": "🏗️", "title": "المسار 1", "desc": "وصف", "match": 90},
+    {"icon": "🎯", "title": "المسار 2", "desc": "وصف", "match": 85},
+    {"icon": "🚀", "title": "المسار 3", "desc": "وصف", "match": 80}
+  ],
+  "courses": [
+    {"num": "01", "title": "اسم الدورة", "reason": "سبب التوصية"},
+    {"num": "02", "title": "اسم الدورة", "reason": "سبب التوصية"},
+    {"num": "03", "title": "اسم الدورة", "reason": "سبب التوصية"},
+    {"num": "04", "title": "اسم الدورة", "reason": "سبب التوصية"},
+    {"num": "05", "title": "اسم الدورة", "reason": "سبب التوصية"}
+  ],
+  "market_cards": [
+    {"label": "الطلب على ملفك", "text": "تحليل", "has_bar": true, "bar_pct": 75},
+    {"label": "كيف يراك السوق", "text": "تحليل", "has_bar": false},
+    {"label": "نقطة التحول", "text": "تحليل", "has_bar": false},
+    {"label": "⚠️ التحذير", "text": "تحليل", "has_bar": false}
+  ],
+  "jobs": [
+    {"title": "المسمى الوظيفي", "reason": "سبب", "salary": "15K–25K SAR/شهر"},
+    {"title": "المسمى الوظيفي", "reason": "سبب", "salary": "18K–28K SAR/شهر"},
+    {"title": "المسمى الوظيفي", "reason": "سبب", "salary": "20K–35K SAR/شهر"},
+    {"title": "المسمى الوظيفي", "reason": "سبب", "salary": "25K–40K SAR/شهر"},
+    {"title": "المسمى الوظيفي", "reason": "سبب", "salary": "30K–50K SAR/شهر"}
   ]
-}
-`;
+}`;
 
-    const response = await fetch(
-      "https://api.anthropic.com/v1/messages",
-      {
-        method: "POST",
-
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": API_KEY,
-          "anthropic-version": "2023-06-01"
-        },
-
-        body: JSON.stringify({
-
-          model: "claude-3-5-sonnet-20241022",
-
-          max_tokens: 2500,
-
-          messages: [
-            {
-              role: "user",
-              content: prompt
-            }
-          ]
-
-        })
-
-      }
-    );
-
-    const data = await response.json();
-
-    console.log("CLAUDE RESPONSE:", JSON.stringify(data));
-
-    if (!data.content) {
-
-      return {
-        statusCode: 500,
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          error: "Claude API Error",
-          raw: data
-        })
-      };
-
-    }
-
-    const text = data.content[0].text;
-
-    const clean = text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    let result;
-
-    try {
-
-      result = JSON.parse(clean);
-
-    } catch(parseError){
-
-      return {
-        statusCode: 500,
-
-        headers: {
-          "Content-Type": "application/json"
-        },
-
-        body: JSON.stringify({
-          error: "JSON Parse Error",
-          rawText: text
-        })
-      };
-
-    }
-
-    return {
-
-      statusCode: 200,
-
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        "x-api-key": API_KEY,
+        "anthropic-version": "2023-06-01"
       },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-20250514",
+        max_tokens: 4000,
+        messages: [{ role: "user", content: prompt }]
+      })
+    });
 
+    const data = await response.json();
+    const text = data.content[0].text;
+    const clean = text.replace(/```json|```/g, "").trim();
+    const result = JSON.parse(clean);
+
+    return {
+      statusCode: 200,
+      headers: { "Content-Type": "application/json", "Access-Control-Allow-Origin": "*" },
       body: JSON.stringify(result)
-
     };
 
   } catch (err) {
-
-    console.log("SERVER ERROR:", err);
-
     return {
-
       statusCode: 500,
-
-      headers: {
-        "Content-Type": "application/json"
-      },
-
-      body: JSON.stringify({
-        error: err.message
-      })
-
+      body: JSON.stringify({ error: "حصل خطأ في التحليل، حاول مرة ثانية" })
     };
-
   }
-
 };
