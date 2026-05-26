@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>شيًك — جاري التحليل</title>
+
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+}
+
+body{
+background:#090909;
+font-family:'IBM Plex Sans Arabic',sans-serif;
+direction:rtl;
+color:white;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+overflow:hidden;
+padding:20px;
+}
+
+main{
+width:100%;
+max-width:420px;
+}
+
+.logo{
+display:flex;
+align-items:center;
+justify-content:center;
+gap:10px;
+margin-bottom:40px;
+}
+
+.logo-box{
+width:34px;
+height:34px;
+border-radius:10px;
+background:#F0C93A;
+}
+
+.logo-name{
+font-size:34px;
+font-weight:800;
+}
+
+.loader{
+width:130px;
+height:130px;
+border-radius:50%;
+border:4px solid rgba(240,201,58,.15);
+border-top-color:#F0C93A;
+margin:0 auto 35px;
+display:flex;
+justify-content:center;
+align-items:center;
+font-size:46px;
+animation:spin 1s linear infinite;
+}
+
+@keyframes spin{
+to{
+transform:rotate(360deg);
+}
+}
+
+.card{
+background:#111;
+border:1px solid rgba(255,255,255,.08);
+border-radius:20px;
+padding:22px;
+margin-bottom:18px;
+text-align:center;
+}
+
+.stage{
+font-size:24px;
+line-height:1.8;
+font-weight:700;
+}
+
+.teaser{
+font-size:20px;
+line-height:1.8;
+font-weight:700;
+color:#F0C93A;
+}
+
+.progress-wrap{
+margin-top:28px;
+}
+
+.progress-top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin-bottom:14px;
+}
+
+.percent{
+font-size:44px;
+font-weight:800;
+color:#F0C93A;
+}
+
+.label{
+font-size:18px;
+color:#888;
+font-weight:700;
+}
+
+.bar{
+width:100%;
+height:12px;
+background:#222;
+border-radius:999px;
+overflow:hidden;
+}
+
+.fill{
+width:0%;
+height:100%;
+background:linear-gradient(90deg,#D4A800,#F0C93A);
+transition:width .25s ease;
+}
+
+.note{
+margin-top:30px;
+text-align:center;
+font-size:16px;
+line-height:1.8;
+color:#999;
+}
+
+</style>
+</head>
+
+<body>
+
+<main>
+
+<div class="logo">
+<div class="logo-box"></div>
+<div class="logo-name">شيًك</div>
+</div>
+
+<div class="loader">
+🧠
+</div>
+
+<div class="card">
+<div class="stage" id="stage">
+الذكاء الاصطناعي يقرأ ما بين السطور...
+</div>
+</div>
+
+<div class="card">
+<div class="teaser" id="teaser">
+جاري فحص سيرتك الذاتية... 👀
+</div>
+</div>
+
+<div class="progress-wrap">
+
+<div class="progress-top">
+<div class="percent" id="percent">0%</div>
+<div class="label">التحليل جارٍ</div>
+</div>
+
+<div class="bar">
+<div class="fill" id="fill"></div>
+</div>
+
+</div>
+
+<div class="note">
+⚠️ لا تغلق الصفحة · شيًك يعمل على سيرتك الحين
+</div>
+
+</main>
+
+<script>
+
+const stages = [
+'الذكاء الاصطناعي يقرأ ما بين السطور...',
+'تحليل طريقة تقديمك لنفسك...',
+'اكتشاف إشارات القيادة المخفية...',
+'تحليل احتمالية الاحتراق الوظيفي...',
+'مقارنة خبرتك مع السوق...',
+'تحليل شخصيتك المهنية...',
+'كتابة التقرير النهائي...'
+];
+
+const teasers = [
+'جاري فحص سيرتك الذاتية... 👀',
+'يبدو أنك تقلل من قيمتك المهنية 😬',
+'الذكاء الاصطناعي اكتشف شيء مثير...',
+'تحليل نقاط القوة المخفية...',
+'التقرير النهائي يجهز الآن 🔥'
+];
+
+let stageIndex = 0;
+let teaserIndex = 0;
+
+const stageEl = document.getElementById('stage');
+const teaserEl = document.getElementById('teaser');
+
+setInterval(() => {
+stageIndex++;
+stageEl.textContent = stages[stageIndex % stages.length];
+}, 2200);
+
+setInterval(() => {
+teaserIndex++;
+teaserEl.textContent = teasers[teaserIndex % teasers.length];
+}, 3200);
+
+const fill = document.getElementById('fill');
+const percent = document.getElementById('percent');
+
+let progress = 0;
+
+const timer = setInterval(() => {
+
+progress += 2;
+
+if(progress > 100){
+progress = 100;
+}
+
+fill.style.width = progress + '%';
+percent.textContent = progress + '%';
+
+if(progress >= 100){
+
+clearInterval(timer);
+
+setTimeout(() => {
+
+window.location.href = 'ascend_report_dynamic.html';
+
+}, 1200);
+
+}
+
+}, 120);
+
+</script>
+
+</body>
+</html>
