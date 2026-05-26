@@ -108,8 +108,9 @@ const pctInterval = setInterval(()=>{
     clearInterval(pctInterval);
     setText(stageEl,'التحليل اكتمل! 🔥');
     setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
-    setTimeout(()=>{ window.location.href='ascend_paywall.html'; }, 1500);
-  }
+    setTimeout(() => {
+  window.location.href = 'ascend_report_dynamic.html';
+}, 1500);
 },300);
 
 // Call API
