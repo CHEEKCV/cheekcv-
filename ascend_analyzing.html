@@ -115,94 +115,30 @@ const pctInterval = setInterval(()=>{
 // Call API
 async function analyzeCV() {
   const cvText = localStorage.getItem('cheek_cv_text');
+
   if(!cvText || cvText.length < 50) {
-    setTimeout(()=>{ apiDone=true; }, 14000);
+    setTimeout(()=>{ apiDone=true; }, 4000);
     return;
   }
+
   try {
-    const API_KEY = "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";
-    
-    const prompt = `أنت محلل مهني سعودي خبير. حلل السيرة الذاتية التالية وأعطني تحليلاً مفصلاً.
 
-السيرة الذاتية:
-${cvText.substring(0, 6000)}
-
-أجب بـ JSON فقط بالشكل التالي (بدون أي نص خارج الـ JSON):
-{
-  "archetype": "اسم الشخصية من: حصان الشغل، عبقري لكنه منهك، مدير بدون منصب، صاحب الحضور الخطير، القائد في وقت الأزمات فقط، صانع القادة، ملك العلاقات، روح الفريق، وجه الشركة، الموظف السياسي، سارق المجهود، ضحية كل شي، الضائع مهنياً، العائد المتردد، التنين النائم، الفلتة، الموهبة المهملة، جاهز بس تنتظر، المنقطع المتمسك، العراب، الخبير الصامت، المتواضع، السائح المهني، صائد الفرص، الصاروخ، المخضرم، الكسول، صاحب الكاريزما، الأسطورة في عقله، المتلاعب، المخطط اللي ما ينفذ",
-  "archetype_emoji": "إيموجي واحد يعبر عن الشخصية",
-  "archetype_en": "The Archetype Name in English",
-  "description": "وصف من 3 جمل بلهجة سعودية مباشرة وجريئة",
-  "market_view": "جملة واحدة كيف يراك السوق",
-  "years_experience": رقم,
-  "companies_count": رقم,
-  "career_trend": "صاعد أو واقف أو نازل",
-  "market_demand": رقم من 0 لـ 100,
-  "strengths": ["نقطة 1", "نقطة 2", "نقطة 3", "نقطة 4", "نقطة 5"],
-  "weaknesses": ["نقطة 1", "نقطة 2", "نقطة 3", "نقطة 4", "نقطة 5"],
-  "cv_insights": [
-    {"icon": "📈", "label": "اتجاه المسيرة", "text": "تحليل"},
-    {"icon": "🏢", "label": "جودة الشركات", "text": "تحليل"},
-    {"icon": "⚡", "label": "طريقة كتابة الإنجازات", "text": "تحليل"},
-    {"icon": "🎯", "label": "الفجوة الأهم", "text": "تحليل"}
-  ],
-  "recommendations": [
-    {"title": "عنوان 1", "desc": "شرح"},
-    {"title": "عنوان 2", "desc": "شرح"},
-    {"title": "عنوان 3", "desc": "شرح"}
-  ],
-  "career_paths": [
-    {"icon": "🏗️", "title": "المسار 1", "desc": "وصف", "match": 90},
-    {"icon": "🎯", "title": "المسار 2", "desc": "وصف", "match": 85},
-    {"icon": "🚀", "title": "المسار 3", "desc": "وصف", "match": 80}
-  ],
-  "courses": [
-    {"num": "01", "title": "اسم الدورة", "reason": "السبب"},
-    {"num": "02", "title": "اسم الدورة", "reason": "السبب"},
-    {"num": "03", "title": "اسم الدورة", "reason": "السبب"},
-    {"num": "04", "title": "اسم الدورة", "reason": "السبب"},
-    {"num": "05", "title": "اسم الدورة", "reason": "السبب"}
-  ],
-  "market_cards": [
-    {"label": "الطلب على ملفك", "text": "تحليل", "has_bar": true, "bar_pct": 75},
-    {"label": "كيف يراك السوق", "text": "تحليل", "has_bar": false},
-    {"label": "نقطة التحول", "text": "تحليل", "has_bar": false},
-    {"label": "التحذير", "text": "تحليل", "has_bar": false}
-  ],
-  "jobs": [
-    {"title": "المسمى", "reason": "السبب", "salary": "15K–25K SAR/شهر"},
-    {"title": "المسمى", "reason": "السبب", "salary": "18K–28K SAR/شهر"},
-    {"title": "المسمى", "reason": "السبب", "salary": "20K–35K SAR/شهر"},
-    {"title": "المسمى", "reason": "السبب", "salary": "25K–40K SAR/شهر"},
-    {"title": "المسمى", "reason": "السبب", "salary": "30K–50K SAR/شهر"}
-  ]
-}`;
-
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
+    const res = await fetch('/.netlify/functions/analyze', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
+        'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 4000,
-        messages: [{ role: 'user', content: prompt }]
+        cvText: cvText
       })
     });
 
-    const data = await res.json();
-    if(data.content && data.content[0]) {
-      const text = data.content[0].text;
-      const clean = text.replace(/```json|```/g, '').trim();
-      const result = JSON.parse(clean);
-      localStorage.setItem('cheek_analysis', JSON.stringify(result));
-      apiDone = true;
-    } else {
-      apiDone = true;
-    }
+    const result = await res.json();
+
+    localStorage.setItem('cheek_analysis', JSON.stringify(result));
+
+    apiDone = true;
+
   } catch(e) {
     console.error(e);
     apiDone = true;
