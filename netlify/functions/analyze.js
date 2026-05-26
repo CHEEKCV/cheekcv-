@@ -1,4 +1,4 @@
-const API_KEY = "حط_مفتاح_Claude_هنا";
+const API_KEY = "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";
 
 const ARCHETYPES = [
   "حصان الشغل",
@@ -36,45 +36,43 @@ const ARCHETYPES = [
 
 exports.handler = async (event) => {
 
-  if(event.httpMethod !== "POST"){
+  if (event.httpMethod !== "POST") {
     return {
       statusCode: 405,
       body: "Method Not Allowed"
     };
   }
 
-  try{
+  try {
 
     const { cvText } = JSON.parse(event.body);
 
-    if(!cvText || cvText.length < 50){
-
+    if (!cvText || cvText.length < 50) {
       return {
         statusCode: 400,
         body: JSON.stringify({
           error: "السيرة الذاتية قصيرة جداً"
         })
       };
-
     }
 
     const prompt = `
 أنت محلل مهني سعودي خبير.
 
-حلل السيرة الذاتية التالية:
+حلل السيرة الذاتية التالية بشكل ذكي وعميق:
 
 ${cvText}
 
-اختر شخصية واحدة فقط من هذه الشخصيات:
+اختر شخصية واحدة فقط من القائمة التالية:
 ${ARCHETYPES.join("، ")}
 
-أجب بـ JSON فقط بدون أي نص إضافي.
+أجب بـ JSON فقط بدون أي كلام إضافي.
 
 {
   "archetype": "اسم الشخصية",
   "archetype_en": "English Name",
   "archetype_emoji": "🔥",
-  "description": "وصف قوي",
+  "description": "وصف قوي من 3 جمل",
   "market_view": "كيف يراك السوق",
   "years_experience": 5,
   "companies_count": 3,
@@ -82,19 +80,19 @@ ${ARCHETYPES.join("، ")}
   "market_demand": 88,
 
   "strengths": [
-    "قوة 1",
-    "قوة 2",
-    "قوة 3",
-    "قوة 4",
-    "قوة 5"
+    "نقطة قوة",
+    "نقطة قوة",
+    "نقطة قوة",
+    "نقطة قوة",
+    "نقطة قوة"
   ],
 
   "weaknesses": [
-    "ضعف 1",
-    "ضعف 2",
-    "ضعف 3",
-    "ضعف 4",
-    "ضعف 5"
+    "نقطة ضعف",
+    "نقطة ضعف",
+    "نقطة ضعف",
+    "نقطة ضعف",
+    "نقطة ضعف"
   ],
 
   "cv_insights": [
@@ -102,10 +100,19 @@ ${ARCHETYPES.join("، ")}
       "icon":"📈",
       "label":"اتجاه المسيرة",
       "text":"تحليل"
+    },
+    {
+      "icon":"🏢",
+      "label":"جودة الشركات",
+      "text":"تحليل"
     }
   ],
 
   "recommendations":[
+    {
+      "title":"توصية",
+      "desc":"شرح"
+    },
     {
       "title":"توصية",
       "desc":"شرح"
@@ -117,6 +124,11 @@ ${ARCHETYPES.join("، ")}
       "title":"Operations Manager",
       "reason":"سبب مناسب",
       "salary":"18K–25K SAR"
+    },
+    {
+      "title":"Business Operations Lead",
+      "reason":"سبب مناسب",
+      "salary":"25K–35K SAR"
     }
   ]
 }
@@ -155,7 +167,7 @@ ${ARCHETYPES.join("، ")}
 
     console.log(data);
 
-    if(!data.content){
+    if (!data.content) {
 
       return {
         statusCode: 500,
@@ -189,8 +201,7 @@ ${ARCHETYPES.join("، ")}
 
     };
 
-  }
-  catch(err){
+  } catch (err) {
 
     console.log(err);
 
