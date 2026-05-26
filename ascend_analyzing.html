@@ -1,3 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+<title>جاري التحليل...</title>
+
+<style>
+
+*{
+margin:0;
+padding:0;
+box-sizing:border-box;
+font-family:sans-serif;
+}
+
+body{
+background:#050816;
+color:white;
+height:100vh;
+overflow:hidden;
+display:flex;
+justify-content:center;
+align-items:center;
+}
+
+canvas{
+position:fixed;
+inset:0;
+z-index:0;
+}
+
+.wrap{
+position:relative;
+z-index:2;
+width:min(92%,650px);
+text-align:center;
+}
+
+.logo{
+font-size:42px;
+font-weight:900;
+margin-bottom:30px;
+}
+
+.stage{
+font-size:28px;
+font-weight:700;
+margin-bottom:18px;
+line-height:1.6;
+}
+
+.teaser{
+font-size:18px;
+opacity:.8;
+margin-bottom:40px;
+line-height:1.8;
+}
+
+.bar{
+height:14px;
+background:#1a1f35;
+border-radius:999px;
+overflow:hidden;
+margin-bottom:14px;
+}
+
+.fill{
+height:100%;
+width:0%;
+background:linear-gradient(90deg,#f0c93a,#ffd95e);
+transition:width .3s ease;
+}
+
+.pct{
+font-size:22px;
+font-weight:800;
+color:#f0c93a;
+}
+
+@keyframes fadeStage{
+from{
+opacity:0;
+transform:translateY(10px);
+}
+to{
+opacity:1;
+transform:none;
+}
+}
+
+</style>
+
+</head>
+
+<body>
+
+<canvas id="c"></canvas>
+
+<div class="wrap">
+
+<div class="logo">شيّك</div>
+
+<div class="stage" id="stage">
+جاري تحليل سيرتك الذاتية...
+</div>
+
+<div class="teaser" id="teaser">
+الذكاء الاصطناعي يقرأ ما بين السطور...
+</div>
+
+<div class="bar">
+<div class="fill" id="fill"></div>
+</div>
+
+<div class="pct" id="pct">0%</div>
+
+</div>
+
+<script>
+
 // Particles
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
@@ -60,10 +184,7 @@ const teasers = [
 "يبدو أنك تقلل من قيمتك المهنية بشكل خطير 😬",
 "الـ AI اكتشف إنك تشتغل بمستوى أعلى من مسماك...",
 "احتمالية عالية إنك ما طالبت بحقك يومًا... 💀",
-"شيًك شاف شيء في سيرتك ما أحد قاله لك من قبل 👀",
-"يبدو أن راتبك أقل بكثير مما تستاهله...",
-"اكتشاف مؤشرات قيادة مخفية في سيرتك... 🔥",
-"تقريرك على وشك يغير طريقة نظرتك لنفسك... 🎯"
+"شيًك شاف شيء في سيرتك ما أحد قاله لك من قبل 👀"
 ];
 
 let si = 0;
@@ -96,7 +217,6 @@ setText(teaserEl,teasers[ti % teasers.length]);
 ti++;
 },3200);
 
-// Progress
 const pctInterval = setInterval(()=>{
 
 if(pct < (apiDone ? 100 : 85)){
@@ -120,9 +240,6 @@ if(pct >= 100){
 
 clearInterval(pctInterval);
 
-setText(stageEl,'التحليل اكتمل! 🔥');
-setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
-
 setTimeout(()=>{
 
 window.location.href='./ascend_paywall.html';
@@ -133,7 +250,6 @@ window.location.href='./ascend_paywall.html';
 
 },300);
 
-// REAL API CALL
 async function analyzeCV(){
 
 const cvText = localStorage.getItem('cheek_cv_text');
@@ -195,3 +311,8 @@ alert('حدث خطأ أثناء التحليل');
 }
 
 analyzeCV();
+
+</script>
+
+</body>
+</html>
