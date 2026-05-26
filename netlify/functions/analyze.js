@@ -1,4 +1,4 @@
-const API_KEY = "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";
+const API_KEY = "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";
 
 const ARCHETYPES = [
   "حصان الشغل",
