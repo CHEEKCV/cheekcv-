@@ -48,12 +48,17 @@ exports.handler = async (event) => {
     const { cvText } = JSON.parse(event.body);
 
     if (!cvText || cvText.length < 50) {
+
       return {
         statusCode: 400,
+        headers: {
+          "Content-Type": "application/json"
+        },
         body: JSON.stringify({
           error: "السيرة الذاتية قصيرة جداً"
         })
       };
+
     }
 
     const prompt = `
@@ -165,12 +170,17 @@ ${ARCHETYPES.join("، ")}
 
     const data = await response.json();
 
-    console.log(data);
+    console.log("CLAUDE RESPONSE:", JSON.stringify(data));
 
     if (!data.content) {
 
       return {
         statusCode: 500,
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
         body: JSON.stringify({
           error: "Claude API Error",
           raw: data
@@ -186,7 +196,28 @@ ${ARCHETYPES.join("، ")}
       .replace(/```/g, "")
       .trim();
 
-    const result = JSON.parse(clean);
+    let result;
+
+    try {
+
+      result = JSON.parse(clean);
+
+    } catch(parseError){
+
+      return {
+        statusCode: 500,
+
+        headers: {
+          "Content-Type": "application/json"
+        },
+
+        body: JSON.stringify({
+          error: "JSON Parse Error",
+          rawText: text
+        })
+      };
+
+    }
 
     return {
 
@@ -203,7 +234,7 @@ ${ARCHETYPES.join("، ")}
 
   } catch (err) {
 
-    console.log(err);
+    console.log("SERVER ERROR:", err);
 
     return {
 
