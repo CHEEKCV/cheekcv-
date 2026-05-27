@@ -90,7 +90,7 @@ exports.handler = async (event) => {
     // المرحلة الأولى
     const s1 = await httpsPost({
 
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
 
       max_tokens: 1200,
 
@@ -197,7 +197,7 @@ ${cv}
     // المرحلة الثانية
     const s2 = await httpsPost({
 
-      model: "claude-3-5-sonnet-20241022",
+      model: "claude-sonnet-4-6",
 
       max_tokens: 5000,
 
