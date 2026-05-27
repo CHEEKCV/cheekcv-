@@ -33,7 +33,7 @@ function httpsPost(data) {
 
       res.on('end', () => {
 
-        console.log('RAW:', raw.substring(0, 300));
+        console.log('RAW:', raw.substring(0, 500));
 
         try {
 
@@ -324,7 +324,24 @@ ${basic.archetype}
       raw2.lastIndexOf("}") + 1
     );
 
-    const details = JSON.parse(json2);
+    let details = {};
+
+    try {
+
+      details = JSON.parse(json2);
+
+    } catch(parseErr) {
+
+      console.log("JSON FIX MODE");
+
+      const fixed = json2
+        .replace(/,\s*}/g, "}")
+        .replace(/,\s*]/g, "]")
+        .replace(/\n/g, " ");
+
+      details = JSON.parse(fixed);
+
+    }
 
     const result = {
       ...basic,
