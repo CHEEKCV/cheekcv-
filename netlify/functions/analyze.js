@@ -1,3 +1,5 @@
+const fetch = require('node-fetch');
+
 const API_KEY = "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";
 
 exports.handler = async (event) => {
