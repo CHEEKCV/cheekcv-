@@ -43,7 +43,7 @@ exports.handler = async (event) => {
 
     const s1 = await httpsPost({
       model: "claude-opus-4-5",
-      max_tokens: 300,
+      max_tokens: 500,
       messages: [{ role: "user", content: `السيرة: ${cv}\n\nاختر شخصية من القائمة وأجب JSON فقط بدون backticks:\nحصان الشغل،عبقري لكنه منهك،مدير بدون منصب،صاحب الحضور الخطير،القائد في وقت الأزمات فقط،صانع القادة،ملك العلاقات،روح الفريق،وجه الشركة،الموظف السياسي،سارق المجهود،ضحية كل شي،الضائع مهنياً،العائد المتردد،التنين النائم،الفلتة،الموهبة المهملة،جاهز بس تنتظر،المنقطع المتمسك،العراب،الخبير الصامت،المتواضع،السائح المهني،صائد الفرص،الصاروخ،المخضرم،الكسول،صاحب الكاريزما،الأسطورة في عقله،المتلاعب،المخطط اللي ما ينفذ\n\n{"archetype":"اسم","archetype_en":"Name","archetype_emoji":"🔥","description":"3 جمل قوية","market_view":"جملة","years_experience":5,"companies_count":3,"career_trend":"صاعد","market_demand":80,"strengths":["1","2","3","4","5"],"weaknesses":["1","2","3","4","5"]}` }]
     });
     const basic = JSON.parse(s1.content[0].text.replace(/```json|```/g,"").trim());
