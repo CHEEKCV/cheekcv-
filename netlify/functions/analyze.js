@@ -85,14 +85,14 @@ exports.handler = async (event) => {
 
     }
 
-    const cv = cvText.substring(0, 1500);
+    const cv = cvText.substring(0, 1200);
 
     // المرحلة الأولى
     const s1 = await httpsPost({
 
       model: "claude-sonnet-4-6",
 
-      max_tokens: 1200,
+      max_tokens: 700,
 
       messages: [
         {
@@ -199,7 +199,7 @@ ${cv}
 
       model: "claude-sonnet-4-6",
 
-      max_tokens: 5000,
+      max_tokens: 1800,
 
       messages: [
         {
@@ -340,16 +340,6 @@ ${basic.archetype}
       "title":"وظيفة",
       "reason":"سبب",
       "salary":"20K-35K SAR"
-    },
-    {
-      "title":"وظيفة",
-      "reason":"سبب",
-      "salary":"25K-40K SAR"
-    },
-    {
-      "title":"وظيفة",
-      "reason":"سبب",
-      "salary":"30K-50K SAR"
     }
   ]
 }
@@ -384,10 +374,8 @@ ${basic.archetype}
     const details = JSON.parse(json2);
 
     const result = {
-
       ...basic,
       ...details
-
     };
 
     return {
