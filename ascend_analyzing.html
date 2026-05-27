@@ -1,143 +1,299 @@
-<!DOCTYPE html>
-<html lang="ar" dir="rtl">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>شيًك — جاري التحليل</title>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
-<style>
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:#0A0A0A;font-family:'IBM Plex Sans Arabic',-apple-system,sans-serif;direction:rtl;color:#fff;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;overflow:hidden;position:relative;-webkit-font-smoothing:antialiased;}
-canvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;}
-.glow{position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:500px;height:500px;background:radial-gradient(circle,rgba(240,201,58,.07) 0%,transparent 70%);pointer-events:none;z-index:0;animation:glowPulse 3s ease-in-out infinite;}
-@keyframes glowPulse{0%,100%{opacity:.6;transform:translate(-50%,-50%) scale(1)}50%{opacity:1;transform:translate(-50%,-50%) scale(1.15)}}
-.scan{position:fixed;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(240,201,58,.4),transparent);z-index:1;animation:scanLine 3.5s linear infinite;pointer-events:none;}
-@keyframes scanLine{0%{top:-2px}100%{top:100%}}
-main{position:relative;z-index:2;width:100%;max-width:420px;padding:24px 20px;display:flex;flex-direction:column;align-items:center;}
-.logo{display:flex;align-items:center;gap:8px;margin-bottom:44px;}
-.logo-box{width:30px;height:30px;background:#F0C93A;border-radius:9px;display:grid;place-items:center;}
-.logo-name{font-size:20px;font-weight:800;color:#fff;letter-spacing:-.02em;}
-.ring-wrap{position:relative;width:110px;height:110px;margin-bottom:36px;}
-.ring-outer{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(240,201,58,.3);animation:spinRing 6s linear infinite;}
-.ring-outer::before{content:'';position:absolute;top:-4px;left:50%;width:8px;height:8px;background:#F0C93A;border-radius:50%;transform:translateX(-50%);box-shadow:0 0 14px rgba(240,201,58,.8);}
-.ring-mid{position:absolute;inset:14px;border-radius:50%;border:1.5px dashed rgba(240,201,58,.15);animation:spinRing 4s linear infinite reverse;}
-.ring-center{position:absolute;inset:26px;border-radius:50%;background:rgba(240,201,58,.1);border:2px solid rgba(240,201,58,.3);display:grid;place-items:center;font-size:26px;animation:pulseSlow 2s ease-in-out infinite;}
-@keyframes spinRing{to{transform:rotate(360deg)}}
-@keyframes pulseSlow{0%,100%{opacity:.8;transform:scale(1)}50%{opacity:1;transform:scale(1.05)}}
-.stage-wrap{width:100%;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:20px;margin-bottom:14px;min-height:68px;display:flex;align-items:center;justify-content:center;}
-.stage-text{font-size:15px;font-weight:700;color:#fff;text-align:center;line-height:1.6;animation:fadeStage .4s ease;}
-.teaser-wrap{width:100%;background:rgba(240,201,58,.08);border:1px solid rgba(240,201,58,.25);border-radius:12px;padding:14px 16px;margin-bottom:28px;min-height:50px;display:flex;align-items:center;justify-content:center;}
-.teaser-text{font-size:13px;font-weight:600;color:rgba(240,201,58,.9);text-align:center;line-height:1.6;animation:fadeStage .4s ease;}
-@keyframes fadeStage{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
-.progress-wrap{width:100%;margin-bottom:8px;}
-.progress-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;}
-.progress-label{font-size:11px;font-weight:700;color:rgba(255,255,255,.3);letter-spacing:1px;}
-.progress-pct{font-size:22px;font-weight:800;color:#F0C93A;}
-.progress-bar{height:6px;background:rgba(255,255,255,.08);border-radius:99px;overflow:hidden;}
-.progress-fill{height:100%;background:linear-gradient(90deg,#D4A800,#F0C93A);border-radius:99px;width:0%;transition:width .6s ease;box-shadow:0 0 10px rgba(240,201,58,.4);}
-.warning{font-size:12px;color:rgba(255,255,255,.7);text-align:center;margin-top:24px;letter-spacing:.5px;font-weight:600;}
-</style>
-</head>
-<body>
-<canvas id="c"></canvas>
-<div class="glow"></div>
-<div class="scan"></div>
-<main>
-  <a href="index.html" style="text-decoration:none;">
-    <div class="logo">
-      <div class="logo-box">
-        <svg width="16" height="16" viewBox="0 0 28 28" fill="none">
-          <circle cx="14" cy="8" r="2.5" fill="#1a1a1a"/>
-          <circle cx="8" cy="20" r="2.5" fill="#1a1a1a"/><circle cx="20" cy="20" r="2.5" fill="#1a1a1a"/>
-          <line x1="14" y1="10.5" x2="14" y2="13.2" stroke="#1a1a1a" stroke-width="1.6"/>
-          <line x1="14" y1="16.8" x2="9.2" y2="18.5" stroke="#1a1a1a" stroke-width="1.6"/>
-          <line x1="14" y1="16.8" x2="18.8" y2="18.5" stroke="#1a1a1a" stroke-width="1.6"/>
-        </svg>
-      </div>
-      <span class="logo-name">شيًك</span>
-    </div>
-  </a>
-  <div class="ring-wrap">
-    <div class="ring-outer"></div>
-    <div class="ring-mid"></div>
-    <div class="ring-center">🧠</div>
-  </div>
-  <div class="stage-wrap"><div class="stage-text" id="stage">الذكاء الاصطناعي يقرأ ما بين السطور...</div></div>
-  <div class="teaser-wrap"><div class="teaser-text" id="teaser">جاري فحص سيرتك الذاتية... 👀</div></div>
-  <div class="progress-wrap">
-    <div class="progress-header">
-      <span class="progress-label">التحليل جارٍ</span>
-      <span class="progress-pct" id="pct">0%</span>
-    </div>
-    <div class="progress-bar"><div class="progress-fill" id="fill"></div></div>
-  </div>
-  <div class="warning">⚠️ لا تغلق الصفحة · شيًك يعمل على سيرتك الحين</div>
-</main>
 <script>
+
 const canvas = document.getElementById('c');
 const ctx = canvas.getContext('2d');
-canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-const particles = Array.from({length:50}, () => ({x:Math.random()*canvas.width,y:Math.random()*canvas.height,r:Math.random()*1.5+.3,vx:(Math.random()-.5)*.3,vy:(Math.random()-.5)*.3,o:Math.random()*.4+.05}));
-function draw(){ctx.clearRect(0,0,canvas.width,canvas.height);particles.forEach(p=>{ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,Math.PI*2);ctx.fillStyle=`rgba(240,201,58,${p.o})`;ctx.fill();p.x+=p.vx;p.y+=p.vy;if(p.x<0||p.x>canvas.width)p.vx*=-1;if(p.y<0||p.y>canvas.height)p.vy*=-1;});requestAnimationFrame(draw);}
+
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+const particles = Array.from({length:50}, () => ({
+x:Math.random()*canvas.width,
+y:Math.random()*canvas.height,
+r:Math.random()*1.5+.3,
+vx:(Math.random()-.5)*.3,
+vy:(Math.random()-.5)*.3,
+o:Math.random()*.4+.05
+}));
+
+function draw(){
+
+ctx.clearRect(0,0,canvas.width,canvas.height);
+
+particles.forEach(p=>{
+
+ctx.beginPath();
+ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
+
+ctx.fillStyle=`rgba(240,201,58,${p.o})`;
+ctx.fill();
+
+p.x += p.vx;
+p.y += p.vy;
+
+if(p.x<0 || p.x>canvas.width) p.vx *= -1;
+if(p.y<0 || p.y>canvas.height) p.vy *= -1;
+
+});
+
+requestAnimationFrame(draw);
+
+}
+
 draw();
 
-const stages = ["الذكاء الاصطناعي يقرأ ما بين السطور...","تحليل طريقة تقديمك لنفسك...","اكتشاف إشارات القيادة المخفية... 🔍","تحليل احتمالية الاحتراق الوظيفي... 😂","مقارنة خبرتك مع طريقة كتابتها...","قياس مستوى الـ under-selling في سيرتك...","اكتشاف شخصيتك المهنية الحقيقية...","تحليل أنك تعمل أكثر مما يقوله منصبك...","رصد الفجوة بين قيمتك الحقيقية وراتبك...","تسجيل الدرجات بلا رحمة... 💀","كتابة الحقيقة القاسية...","تحديد الوظائف اللي تستاهلها فعلاً...","بناء الحكم النهائي... 🔥"];
-const teasers = ["جاري فحص سيرتك الذاتية... 👀","يبدو أنك تقلل من قيمتك المهنية بشكل خطير 😬","الـ AI اكتشف إنك تشتغل بمستوى أعلى من مسماك...","احتمالية عالية إنك ما طالبت بحقك يومًا... 💀","شيًك شاف شيء في سيرتك ما أحد قاله لك من قبل 👀","يبدو أن راتبك أقل بكثير مما تستاهله...","اكتشاف مؤشرات قيادة مخفية في سيرتك... 🔥","تقريرك على وشك يغير طريقة نظرتك لنفسك... 🎯"];
+const stages = [
+"الذكاء الاصطناعي يقرأ ما بين السطور...",
+"تحليل طريقة تقديمك لنفسك...",
+"اكتشاف إشارات القيادة المخفية... 🔍",
+"تحليل احتمالية الاحتراق الوظيفي... 😂",
+"مقارنة خبرتك مع طريقة كتابتها...",
+"قياس مستوى الـ under-selling في سيرتك...",
+"اكتشاف شخصيتك المهنية الحقيقية...",
+"تحليل أنك تعمل أكثر مما يقوله منصبك...",
+"رصد الفجوة بين قيمتك الحقيقية وراتبك...",
+"تسجيل الدرجات بلا رحمة... 💀",
+"كتابة الحقيقة القاسية...",
+"تحديد الوظائف اللي تستاهلها فعلاً...",
+"بناء الحكم النهائي... 🔥"
+];
 
-let si=0,ti=0,pct=0,apiDone=false;
-const fillEl=document.getElementById('fill');
-const pctEl=document.getElementById('pct');
-const stageEl=document.getElementById('stage');
-const teaserEl=document.getElementById('teaser');
+const teasers = [
+"جاري فحص سيرتك الذاتية... 👀",
+"يبدو أنك تقلل من قيمتك المهنية بشكل خطير 😬",
+"الـ AI اكتشف إنك تشتغل بمستوى أعلى من مسماك...",
+"احتمالية عالية إنك ما طالبت بحقك يومًا... 💀",
+"شيًك شاف شيء في سيرتك ما أحد قاله لك من قبل 👀",
+"يبدو أن راتبك أقل بكثير مما تستاهله...",
+"اكتشاف مؤشرات قيادة مخفية في سيرتك... 🔥",
+"تقريرك على وشك يغير طريقة نظرتك لنفسك... 🎯"
+];
 
-function setText(el,txt){el.style.animation='none';void el.offsetHeight;el.style.animation='fadeStage .4s ease';el.textContent=txt;}
-setInterval(()=>{setText(stageEl,stages[si%stages.length]);si++;},2000);
-setInterval(()=>{setText(teaserEl,teasers[ti%teasers.length]);ti++;},3200);
+let si = 0;
+let ti = 0;
+let pct = 0;
+let apiDone = false;
+
+const fillEl = document.getElementById('fill');
+const pctEl = document.getElementById('pct');
+const stageEl = document.getElementById('stage');
+const teaserEl = document.getElementById('teaser');
+
+function setText(el,txt){
+
+el.style.animation='none';
+void el.offsetHeight;
+el.style.animation='fadeStage .4s ease';
+
+el.textContent = txt;
+
+}
+
+setInterval(()=>{
+
+setText(stageEl,stages[si % stages.length]);
+si++;
+
+},2000);
+
+setInterval(()=>{
+
+setText(teaserEl,teasers[ti % teasers.length]);
+ti++;
+
+},3200);
 
 const pctInterval = setInterval(()=>{
-  if(pct < (apiDone ? 100 : 85)){
-    pct += Math.random()*2+.3;
-    if(!apiDone && pct>85) pct=85;
-    if(pct>100) pct=100;
-    fillEl.style.width=pct+'%';
-    pctEl.textContent=Math.floor(pct)+'%';
-  }
-  if(pct>=100){
-    clearInterval(pctInterval);
-    setText(stageEl,'التحليل اكتمل! 🔥');
-    setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
-    setTimeout(()=>{ window.location.href='ascend_paywall.html'; }, 1500);
-  }
+
+if(pct < (apiDone ? 100 : 85)){
+
+pct += Math.random()*2 + .3;
+
+if(!apiDone && pct > 85){
+pct = 85;
+}
+
+if(pct > 100){
+pct = 100;
+}
+
+fillEl.style.width = pct + '%';
+pctEl.textContent = Math.floor(pct) + '%';
+
+}
+
+if(pct >= 100){
+
+clearInterval(pctInterval);
+
+setText(stageEl,'التحليل اكتمل! 🔥');
+setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
+
+setTimeout(()=>{
+
+window.location.href='ascend_paywall.html';
+
+},1500);
+
+}
+
 },300);
 
-async function analyzeCV() {
-  const cvText = localStorage.getItem('cheek_cv_text');
-  if(!cvText || cvText.length < 50) {
-    setTimeout(()=>{ apiDone=true; }, 35000);
-    return;
-  }
-  try {
-    const res = await fetch('/.netlify/functions/analyze', {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({cvText})
-    });
-    const result = await res.json();
-    if(result && result.archetype) {
-      localStorage.setItem('cheek_analysis', JSON.stringify(result));
-      apiDone = true;
-    } else {
-      alert(JSON.stringify(result));
-      apiDone = true;
-    }
-  } catch(e) {
-    console.error(e);
-    alert('خطأ: ' + e.message);
-    apiDone = true;
-  }
+async function analyzeCV(){
+
+const cvText = localStorage.getItem('cheek_cv_text');
+
+if(!cvText || cvText.length < 50){
+
+document.body.innerHTML = `
+<div style="
+background:#050816;
+color:white;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+font-family:sans-serif;
+direction:rtl;
+text-align:center;
+">
+
+<div>
+
+<h1 style="font-size:32px;margin-bottom:20px;">
+❌ السيرة الذاتية غير موجودة
+</h1>
+
+</div>
+
+</div>
+`;
+
+return;
+
+}
+
+try{
+
+const response = await fetch('/.netlify/functions/analyze', {
+
+method:'POST',
+
+headers:{
+'Content-Type':'application/json'
+},
+
+body:JSON.stringify({
+cvText
+})
+
+});
+
+const result = await response.json();
+
+console.log(result);
+
+if(result && result.archetype){
+
+localStorage.removeItem('cheek_analysis');
+
+localStorage.setItem(
+'cheek_analysis',
+JSON.stringify(result)
+);
+
+apiDone = true;
+
+}
+else{
+
+document.body.innerHTML = `
+<div style="
+background:#050816;
+color:white;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+font-family:sans-serif;
+direction:rtl;
+text-align:center;
+">
+
+<div>
+
+<h1 style="font-size:32px;margin-bottom:20px;">
+❌ فشل التحليل
+</h1>
+
+<pre style="
+white-space:pre-wrap;
+line-height:1.8;
+background:#111827;
+padding:20px;
+border-radius:14px;
+max-width:700px;
+overflow:auto;
+text-align:right;
+">
+${JSON.stringify(result,null,2)}
+</pre>
+
+</div>
+
+</div>
+`;
+
+}
+
+}
+catch(err){
+
+console.error(err);
+
+document.body.innerHTML = `
+<div style="
+background:#050816;
+color:white;
+min-height:100vh;
+display:flex;
+justify-content:center;
+align-items:center;
+padding:30px;
+font-family:sans-serif;
+direction:rtl;
+text-align:center;
+">
+
+<div>
+
+<h1 style="font-size:32px;margin-bottom:20px;">
+❌ خطأ أثناء التحليل
+</h1>
+
+<pre style="
+white-space:pre-wrap;
+line-height:1.8;
+background:#111827;
+padding:20px;
+border-radius:14px;
+max-width:700px;
+overflow:auto;
+text-align:right;
+">
+${err.message}
+</pre>
+
+</div>
+
+</div>
+`;
+
+}
+
 }
 
 analyzeCV();
+
 </script>
-</body>
-</html>
