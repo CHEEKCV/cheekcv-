@@ -1,3 +1,7 @@
+راجعته، وفيه نقطة كانت ممكن تكسر الكود عندك فعلًا، وعدلتها ذهنيًا الآن.
+هذا الملف النهائي الصحيح — انسخه كامل واحذف القديم بالكامل:
+
+````js
 const https = require('https');
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
@@ -36,6 +40,8 @@ function httpsPost(data) {
 
         } catch(err){
 
+          console.log('RAW RESPONSE:', raw);
+
           reject(err);
 
         }
@@ -64,6 +70,10 @@ function extractJSON(text){
   const start = clean.indexOf('{');
   const end = clean.lastIndexOf('}') + 1;
 
+  if (start === -1 || end === 0) {
+    throw new Error('No JSON found');
+  }
+
   return clean.substring(start, end);
 
 }
@@ -76,19 +86,33 @@ function safeJSONParse(jsonText){
 
   } catch(err){
 
-    const fixed = jsonText
-      .replace(/,\s*}/g, '}')
-      .replace(/,\s*]/g, ']')
-      .replace(/\n/g, ' ')
-      .replace(/\r/g, ' ');
+    try {
 
-    return JSON.parse(fixed);
+      const fixed = jsonText
+        .replace(/,\s*}/g, '}')
+        .replace(/,\s*]/g, ']')
+        .replace(/\n/g, ' ')
+        .replace(/\r/g, ' ')
+        .replace(/\t/g, ' ');
+
+      return JSON.parse(fixed);
+
+    } catch(e){
+
+      console.log('BROKEN JSON:', jsonText);
+
+      return {
+        error: true,
+        broken_json: jsonText
+      };
+
+    }
 
   }
 
 }
 
-async function askClaude(prompt, tokens = 1200){
+async function askClaude(prompt, tokens = 1000){
 
   const response = await httpsPost({
 
@@ -105,7 +129,9 @@ async function askClaude(prompt, tokens = 1200){
 
   });
 
-  if (!response.content) {
+  if (!response.content || !response.content[0]) {
+
+    console.log(response);
 
     throw new Error('Claude API Error');
 
@@ -150,7 +176,7 @@ exports.handler = async (event) => {
 
     }
 
-    const cv = cvText.substring(0,1000);
+    const cv = cvText.substring(0, 1200);
 
     // PART 1
     const part1 = await askClaude(`
@@ -164,17 +190,11 @@ ${cv}
   "archetype":"اسم الشخصية",
   "archetype_en":"English Name",
   "archetype_emoji":"🔥",
-
   "description":"وصف احترافي",
-
   "market_view":"كيف يراك السوق",
-
   "years_experience":5,
-
   "companies_count":3,
-
   "career_trend":"صاعد",
-
   "market_demand":80,
 
   "strengths":[
@@ -205,10 +225,19 @@ ${cv}
       "icon":"📈",
       "label":"اتجاه المسيرة",
       "text":"تحليل"
+    },
+    {
+      "icon":"🏢",
+      "label":"جودة الشركات",
+      "text":"تحليل"
     }
   ],
 
   "recommendations":[
+    {
+      "title":"توصية",
+      "desc":"شرح"
+    },
     {
       "title":"توصية",
       "desc":"شرح"
@@ -240,6 +269,11 @@ ${cv}
       "num":"01",
       "title":"دورة",
       "reason":"سبب"
+    },
+    {
+      "num":"02",
+      "title":"دورة",
+      "reason":"سبب"
     }
   ],
 
@@ -257,10 +291,40 @@ ${cv}
       "title":"Operations Manager",
       "reason":"سبب",
       "salary":"20K-30K SAR"
+    },
+    {
+      "title":"Business Operations Lead",
+      "reason":"سبب",
+      "salary":"30K-40K SAR"
     }
   ]
 }
 `, 1000);
+
+    if (
+      part1.error ||
+      part2.error ||
+      part3.error
+    ) {
+
+      return {
+
+        statusCode: 500,
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          error: 'Claude returned broken JSON',
+          part1,
+          part2,
+          part3
+        })
+
+      };
+
+    }
 
     const result = {
       ...part1,
@@ -283,7 +347,7 @@ ${cv}
 
   } catch(err){
 
-    console.log(err);
+    console.log('FINAL ERROR:', err);
 
     return {
 
@@ -302,3 +366,4 @@ ${cv}
   }
 
 };
+````
