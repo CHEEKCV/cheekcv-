@@ -60,19 +60,33 @@ function httpsPost(data) {
 
 function extractJSON(text){
 
-  const clean = text
-    .replace(/```json/g, '')
-    .replace(/```/g, '')
-    .trim();
+  let clean = text.trim();
 
-  const start = clean.indexOf('{');
-  const end = clean.lastIndexOf('}') + 1;
+  clean = clean.replace(/```json/g, '');
+  clean = clean.replace(/```/g, '');
 
-  if (start === -1 || end === 0) {
+  // إزالة الـ escape
+  clean = clean.replace(/\\"/g, '"');
+  clean = clean.replace(/\\\\n/g, '');
+  clean = clean.replace(/\\n/g, '');
+  clean = clean.replace(/\\\\/g, '\\');
+
+  // إذا النص String كامل
+  if (
+    clean.startsWith('"') &&
+    clean.endsWith('"')
+  ) {
+    clean = clean.slice(1, -1);
+  }
+
+  const first = clean.indexOf('{');
+  const last = clean.lastIndexOf('}');
+
+  if (first === -1 || last === -1) {
     throw new Error('No JSON found');
   }
 
-  return clean.substring(start, end);
+  return clean.substring(first, last + 1);
 
 }
 
@@ -210,17 +224,9 @@ ${cvText.substring(0,1200)}
 
     try {
 
-      let jsonText = extractJSON(rawText);
+      const jsonText = extractJSON(rawText);
 
-      // أول parse
       result = JSON.parse(jsonText);
-
-      // إذا Claude رجع string escaped
-      if (typeof result === 'string') {
-
-        result = JSON.parse(result);
-
-      }
 
     } catch(err){
 
