@@ -249,7 +249,7 @@ ${cv}
     }
   ]
 }
-`, 1000);
+`, 1800);
 
     // PART 3
     const part3 = await askClaude(`
