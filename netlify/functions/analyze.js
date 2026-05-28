@@ -2,51 +2,63 @@ const https = require('https');
 
 const API_KEY = process.env.ANTHROPIC_API_KEY;
 
-function callClaude(prompt) {
+function askClaude(prompt){
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve,reject)=>{
 
     const body = JSON.stringify({
-      model: 'claude-sonnet-4-6',
-      max_tokens: 1200,
-      messages: [
+
+      model:'claude-sonnet-4-6',
+
+      max_tokens:1400,
+
+      messages:[
         {
-          role: 'user',
-          content: prompt
+          role:'user',
+          content:prompt
         }
       ]
+
     });
 
     const req = https.request({
 
-      hostname: 'api.anthropic.com',
-      path: '/v1/messages',
-      method: 'POST',
+      hostname:'api.anthropic.com',
 
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': API_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Length': Buffer.byteLength(body)
+      path:'/v1/messages',
+
+      method:'POST',
+
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':API_KEY,
+        'anthropic-version':'2023-06-01',
+        'Content-Length':Buffer.byteLength(body)
       }
 
-    }, (res) => {
+    },res=>{
 
-      let raw = '';
+      let raw='';
 
-      res.on('data', chunk => {
+      res.on('data',chunk=>{
         raw += chunk;
       });
 
-      res.on('end', () => {
+      res.on('end',()=>{
 
-        try {
+        try{
 
           const parsed = JSON.parse(raw);
 
-          resolve(parsed.content[0].text);
+          const text =
+            parsed?.content?.[0]?.text || '';
 
-        } catch(err){
+          resolve(text);
+
+        }
+        catch(err){
+
+          console.log(raw);
 
           reject(err);
 
@@ -56,7 +68,7 @@ function callClaude(prompt) {
 
     });
 
-    req.on('error', reject);
+    req.on('error',reject);
 
     req.write(body);
 
@@ -66,15 +78,50 @@ function callClaude(prompt) {
 
 }
 
-exports.handler = async (event) => {
+function detectArchetype(text){
 
-  try {
+  const types = [
 
-    if (event.httpMethod !== 'POST') {
+    'العقل التنفيذي',
+    'صاحب الكاريزما',
+    'حصان الشغل',
+    'المنقذ وقت الأزمات',
+    'العبقري المنهك',
+    'الموهبة المهملة',
+    'الاستراتيجي الصامت',
+    'القيادي بالفطرة',
+    'صانع العلاقات',
+    'الاحترافي المخفي',
+    'المخضرم',
+    'الصاروخ',
+    'المنظم المرعب',
+    'المحارب الإداري'
 
-      return {
-        statusCode: 405,
-        body: 'Method Not Allowed'
+  ];
+
+  for(const t of types){
+
+    if(text.includes(t)){
+
+      return t;
+
+    }
+
+  }
+
+  return 'العقل التنفيذي';
+
+}
+
+exports.handler = async(event)=>{
+
+  try{
+
+    if(event.httpMethod !== 'POST'){
+
+      return{
+        statusCode:405,
+        body:'Method Not Allowed'
       };
 
     }
@@ -83,69 +130,98 @@ exports.handler = async (event) => {
 
     const cvText = body.cvText;
 
-    if (!cvText || cvText.length < 50) {
+    if(!cvText || cvText.length < 50){
 
-      return {
-        statusCode: 400,
-        body: JSON.stringify({
-          error: 'CV too short'
+      return{
+        statusCode:400,
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify({
+          error:'السيرة قصيرة'
         })
       };
 
     }
 
     const prompt = `
-حلل هذه السيرة الذاتية بشكل احترافي.
+حلل السيرة الذاتية التالية بشكل احترافي.
 
 السيرة:
-${cvText.substring(0,1200)}
+${cvText.substring(0,1500)}
 
-أعطني:
-1- نوع الشخصية المهنية
-2- وصف قوي
-3- نقاط القوة
-4- نقاط الضعف
-5- كيف يراه السوق
-6- توصيات تطوير
-7- وظائف تناسبه
+حدد نوع الشخصية المهنية الحقيقي من القائمة التالية فقط:
+
+- العقل التنفيذي
+- صاحب الكاريزما
+- حصان الشغل
+- المنقذ وقت الأزمات
+- العبقري المنهك
+- الموهبة المهملة
+- الاستراتيجي الصامت
+- القيادي بالفطرة
+- صانع العلاقات
+- الاحترافي المخفي
+- المخضرم
+- الصاروخ
+- المنظم المرعب
+- المحارب الإداري
+
+ثم اشرح:
+
+1- لماذا هذه الشخصية
+2- نقاط القوة
+3- نقاط الضعف
+4- كيف يراه السوق
+5- الوظائف المناسبة
+6- أخطر نقطة مهنية لديه
 
 مهم:
-لا تستخدم JSON.
-اكتب بشكل عادي ومنظم.
+- لا تستخدم JSON
+- لا تستخدم markdown كثير
+- اكتب بشكل واضح وقوي
 `;
 
-    const text = await callClaude(prompt);
+    const analysis = await askClaude(prompt);
 
-    return {
+    const archetype = detectArchetype(analysis);
 
-      statusCode: 200,
+    return{
 
-      headers: {
-        'Content-Type': 'application/json',
-        'Access-Control-Allow-Origin': '*'
+      statusCode:200,
+
+      headers:{
+        'Content-Type':'application/json',
+        'Access-Control-Allow-Origin':'*'
       },
 
-      body: JSON.stringify({
-        success: true,
-        analysis: text
+      body:JSON.stringify({
+
+        success:true,
+
+        archetype,
+
+        analysis
+
       })
 
     };
 
-  } catch(err){
+  }
+  catch(err){
 
     console.log(err);
 
-    return {
+    return{
 
-      statusCode: 500,
+      statusCode:500,
 
-      headers: {
-        'Content-Type': 'application/json'
+      headers:{
+        'Content-Type':'application/json'
       },
 
-      body: JSON.stringify({
-        error: err.message
+      body:JSON.stringify({
+        error:err.message
       })
 
     };
