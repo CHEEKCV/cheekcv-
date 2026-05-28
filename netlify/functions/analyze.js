@@ -179,12 +179,18 @@ ${cvText.substring(0,1500)}
 مهم:
 - لا تستخدم JSON
 - لا تستخدم markdown كثير
+- لا تستخدم \`\`\`
 - اكتب بشكل واضح وقوي
 `;
 
     const analysis = await askClaude(prompt);
 
-    const archetype = detectArchetype(analysis);
+    let cleaned = analysis
+    .replace(/```json/g,'')
+    .replace(/```/g,'')
+    .trim();
+
+    const archetype = detectArchetype(cleaned);
 
     return{
 
@@ -201,7 +207,7 @@ ${cvText.substring(0,1500)}
 
         archetype,
 
-        analysis
+        analysis: cleaned
 
       })
 
