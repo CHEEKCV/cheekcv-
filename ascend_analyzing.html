@@ -3,297 +3,45 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>شيًك — جاري التحليل</title>
-
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
-
+<title>Analyzing</title>
 <style>
-
-*{
-margin:0;
-padding:0;
-box-sizing:border-box;
-}
-
 body{
 background:#050816;
 color:white;
-font-family:'IBM Plex Sans Arabic',sans-serif;
-min-height:100vh;
-overflow:hidden;
+font-family:sans-serif;
 display:flex;
 justify-content:center;
 align-items:center;
-direction:rtl;
+height:100vh;
+flex-direction:column;
 }
-
-.container{
-width:100%;
-max-width:460px;
-padding:24px;
-text-align:center;
-}
-
-.logo{
-font-size:34px;
-font-weight:800;
-margin-bottom:40px;
-}
-
-.loader{
-width:120px;
-height:120px;
-border-radius:50%;
-border:3px solid rgba(240,201,58,.15);
-border-top:3px solid #F0C93A;
-margin:0 auto 30px;
-animation:spin 1s linear infinite;
-display:flex;
-align-items:center;
-justify-content:center;
-font-size:40px;
-}
-
-@keyframes spin{
-100%{
-transform:rotate(360deg);
-}
-}
-
-.stage{
-font-size:22px;
-font-weight:800;
-line-height:1.8;
-margin-bottom:20px;
-min-height:80px;
-}
-
-.teaser{
-background:rgba(240,201,58,.08);
-border:1px solid rgba(240,201,58,.2);
-padding:18px;
-border-radius:16px;
-font-size:15px;
-line-height:1.9;
-margin-bottom:28px;
-color:#F0C93A;
-font-weight:700;
-}
-
-.progress-wrap{
-margin-top:20px;
-}
-
-.progress-top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-margin-bottom:12px;
-}
-
-.progress-label{
-font-size:13px;
-opacity:.6;
-font-weight:700;
-}
-
-.progress-pct{
-font-size:30px;
-font-weight:800;
-color:#F0C93A;
-}
-
-.progress-bar{
-height:8px;
-background:rgba(255,255,255,.08);
-border-radius:999px;
-overflow:hidden;
-}
-
-.progress-fill{
-height:100%;
-width:0%;
-background:linear-gradient(90deg,#D4A800,#F0C93A);
-border-radius:999px;
-transition:width .4s ease;
-}
-
-.warning{
-margin-top:28px;
-font-size:13px;
-opacity:.7;
-font-weight:600;
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="container">
-
-<div class="logo">
-شيًك 🧠
-</div>
-
-<div class="loader">
-🔥
-</div>
-
-<div class="stage" id="stage">
-الذكاء الاصطناعي يقرأ ما بين السطور...
-</div>
-
-<div class="teaser" id="teaser">
-جاري اكتشاف حقيقتك المهنية 👀
-</div>
-
-<div class="progress-wrap">
-
-<div class="progress-top">
-
-<div class="progress-label">
-التحليل جاري
-</div>
-
-<div class="progress-pct" id="pct">
-0%
-</div>
-
-</div>
-
-<div class="progress-bar">
-
-<div class="progress-fill" id="fill"></div>
-
-</div>
-
-</div>
-
-<div class="warning">
-⚠️ لا تغلق الصفحة — شيًك يعمل على تحليل سيرتك الآن
-</div>
-
-</div>
+<h1 id="status">
+جاري التحليل...
+</h1>
 
 <script>
 
-const stages = [
-
-'الذكاء الاصطناعي يقرأ ما بين السطور...',
-'تحليل شخصيتك المهنية...',
-'فحص نقاط القوة الخفية...',
-'تحليل طريقة تقديمك لنفسك...',
-'مقارنة خبرتك بالسوق...',
-'اكتشاف الفجوة المهنية...',
-'تحديد الوظائف المناسبة...',
-'بناء الحكم النهائي 🔥'
-
-];
-
-const teasers = [
-
-'يبدو أنك تقلل من قيمتك المهنية 👀',
-'هناك إشارات قيادية قوية في سيرتك...',
-'الذكاء الاصطناعي اكتشف شيء مثير...',
-'احتمالية أنك تستحق راتب أعلى مرتفعة 💸',
-'طريقة كتابتك تخفي جزء كبير من قيمتك...',
-'شيًك يحلل حقيقتك المهنية الآن 🔥'
-
-];
-
-let stageIndex = 0;
-let teaserIndex = 0;
-
-const stageEl = document.getElementById('stage');
-const teaserEl = document.getElementById('teaser');
-
-setInterval(()=>{
-
-stageIndex++;
-
-stageEl.innerText =
-stages[stageIndex % stages.length];
-
-},2200);
-
-setInterval(()=>{
-
-teaserIndex++;
-
-teaserEl.innerText =
-teasers[teaserIndex % teasers.length];
-
-},3200);
-
-const fill = document.getElementById('fill');
-const pct = document.getElementById('pct');
-
-let progress = 0;
-let apiDone = false;
-
-const progressLoop = setInterval(()=>{
-
-if(progress < (apiDone ? 100 : 88)){
-
-progress += Math.random() * 3;
-
-if(!apiDone && progress > 88){
-progress = 88;
-}
-
-if(progress > 100){
-progress = 100;
-}
-
-fill.style.width = progress + '%';
-
-pct.innerText =
-Math.floor(progress) + '%';
-
-}
-
-if(progress >= 100){
-
-clearInterval(progressLoop);
-
-window.location.href =
-'ascend_paywall.html';
-
-}
-
-},300);
-
-async function analyzeCV(){
+async function run(){
 
 try{
 
 const cvText =
 localStorage.getItem('cheek_cv_text');
 
-if(!cvText){
-
-alert('السيرة الذاتية غير موجودة');
-
-window.location.href='index.html';
-
-return;
-
-}
-
 const response = await fetch(
 '/.netlify/functions/analyze',
 {
 method:'POST',
-
 headers:{
 'Content-Type':'application/json'
 },
-
 body:JSON.stringify({
 cvText
 })
-
 }
 );
 
@@ -301,127 +49,36 @@ const text = await response.text();
 
 console.log(text);
 
-let result;
-
-try{
-
-result = JSON.parse(text);
-
-}
-catch(e){
-
-document.body.innerHTML = `
-<div style="
-padding:40px;
-color:white;
-background:#050816;
-min-height:100vh;
-font-family:sans-serif;
-direction:rtl;
-">
-
-<h1>❌ JSON غير صالح</h1>
-
-<pre style="
-white-space:pre-wrap;
-line-height:1.8;
-background:#111827;
-padding:20px;
-border-radius:16px;
-overflow:auto;
-">
-${text}
-</pre>
-
-</div>
-`;
-
-throw e;
-
-}
-
-console.log(result);
-
-if(result && result.success){
+const result = JSON.parse(text);
 
 localStorage.setItem(
 'cheek_analysis',
 JSON.stringify(result)
 );
 
-apiDone = true;
+document.getElementById('status').innerText =
+'تم التحليل ✅';
 
-}
-else{
+setTimeout(()=>{
 
-document.body.innerHTML = `
-<div style="
-padding:40px;
-color:white;
-font-family:sans-serif;
-direction:rtl;
-background:#050816;
-min-height:100vh;
-">
+window.location.href =
+'ascend_paywall.html';
 
-<h1 style="margin-bottom:20px;">
-❌ فشل التحليل
-</h1>
-
-<pre style="
-white-space:pre-wrap;
-line-height:1.8;
-background:#111827;
-padding:20px;
-border-radius:16px;
-overflow:auto;
-">
-${JSON.stringify(result,null,2)}
-</pre>
-
-</div>
-`;
-
-}
+},1000);
 
 }
 catch(err){
 
-console.error(err);
+document.body.innerHTML =
+'<h1>❌ '+ err.message +'</h1>';
 
-document.body.innerHTML = `
-<div style="
-padding:40px;
-color:white;
-font-family:sans-serif;
-direction:rtl;
-background:#050816;
-min-height:100vh;
-">
-
-<h1 style="margin-bottom:20px;">
-❌ خطأ أثناء التحليل
-</h1>
-
-<pre style="
-white-space:pre-wrap;
-line-height:1.8;
-background:#111827;
-padding:20px;
-border-radius:16px;
-overflow:auto;
-">
-${err.message}
-</pre>
-
-</div>
-`;
+console.log(err);
 
 }
 
 }
 
-analyzeCV();
+run();
 
 </script>
 
