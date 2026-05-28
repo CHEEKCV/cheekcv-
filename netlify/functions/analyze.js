@@ -32,9 +32,13 @@ function httpsPost(data) {
 
         try {
 
-          resolve(JSON.parse(raw));
+          const parsed = JSON.parse(raw);
+
+          resolve(parsed);
 
         } catch(err){
+
+          console.log('RAW API RESPONSE:', raw);
 
           reject(err);
 
@@ -64,6 +68,10 @@ function extractJSON(text){
   const start = clean.indexOf('{');
   const end = clean.lastIndexOf('}') + 1;
 
+  if (start === -1 || end === 0) {
+    throw new Error('No JSON found');
+  }
+
   return clean.substring(start, end);
 
 }
@@ -71,6 +79,15 @@ function extractJSON(text){
 exports.handler = async (event) => {
 
   try {
+
+    if (event.httpMethod !== 'POST') {
+
+      return {
+        statusCode: 405,
+        body: 'Method Not Allowed'
+      };
+
+    }
 
     const body = JSON.parse(event.body);
 
@@ -80,6 +97,9 @@ exports.handler = async (event) => {
 
       return {
         statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           error: 'CV too short'
         })
@@ -111,9 +131,17 @@ ${cvText.substring(0,1200)}
 
   "market_demand":0,
 
-  "strengths":["","",""],
+  "strengths":[
+    "",
+    "",
+    ""
+  ],
 
-  "weaknesses":["","",""],
+  "weaknesses":[
+    "",
+    "",
+    ""
+  ],
 
   "cv_insights":[
     {
@@ -155,11 +183,57 @@ ${cvText.substring(0,1200)}
 
     });
 
+    if (!response.content || !response.content[0]) {
+
+      console.log(response);
+
+      return {
+
+        statusCode: 500,
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          error: 'Claude API Error',
+          raw: response
+        })
+
+      };
+
+    }
+
     const rawText = response.content[0].text;
 
     const jsonText = extractJSON(rawText);
 
-    const result = JSON.parse(jsonText);
+    let result;
+
+    try {
+
+      result = JSON.parse(jsonText);
+
+    } catch(err){
+
+      console.log('BROKEN JSON:', jsonText);
+
+      return {
+
+        statusCode: 500,
+
+        headers: {
+          'Content-Type': 'application/json'
+        },
+
+        body: JSON.stringify({
+          error: 'Claude JSON Broken',
+          raw: jsonText
+        })
+
+      };
+
+    }
 
     return {
 
@@ -176,7 +250,7 @@ ${cvText.substring(0,1200)}
 
   } catch(err){
 
-    console.log(err);
+    console.log('FINAL ERROR:', err);
 
     return {
 
