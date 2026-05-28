@@ -9,15 +9,20 @@ function httpsPost(data) {
     const body = JSON.stringify(data);
 
     const options = {
+
       hostname: 'api.anthropic.com',
+
       path: '/v1/messages',
+
       method: 'POST',
+
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Length': Buffer.byteLength(body)
       }
+
     };
 
     const req = https.request(options, (res) => {
@@ -52,18 +57,17 @@ function httpsPost(data) {
 
 }
 
-function cleanJSON(text){
+function extractJSON(text){
 
-  return text
+  text = text
     .replace(/```json/g, '')
     .replace(/```/g, '')
-    .replace(/\n/g, ' ')
-    .replace(/\r/g, ' ')
-    .replace(/\t/g, ' ')
-    .replace(/,\s*}/g, '}')
-    .replace(/,\s*]/g, ']')
-    .replace(/"\s+"/g, '","')
     .trim();
+
+  const start = text.indexOf('{');
+  const end = text.lastIndexOf('}') + 1;
+
+  return text.substring(start, end);
 
 }
 
@@ -94,33 +98,39 @@ exports.handler = async (event) => {
     }
 
     const prompt = `
-حلل السيرة التالية:
+حلل السيرة التالية بشكل احترافي وعميق:
 
-${cvText.substring(0,1200)}
+${cvText.substring(0,1000)}
 
-أجب JSON فقط بدون أي شرح.
+أجب JSON فقط بدون أي شرح إضافي.
 
 {
   "archetype":"اسم الشخصية",
-  "archetype_en":"English",
+  "archetype_en":"English Name",
   "archetype_emoji":"🔥",
-  "description":"وصف",
-  "market_view":"جملة",
+
+  "description":"وصف احترافي",
+
+  "market_view":"كيف يراك السوق",
+
   "years_experience":5,
+
   "companies_count":3,
+
   "career_trend":"صاعد",
-  "market_demand":85,
+
+  "market_demand":80,
 
   "strengths":[
-    "نقطة",
-    "نقطة",
-    "نقطة"
+    "ميزة 1",
+    "ميزة 2",
+    "ميزة 3"
   ],
 
   "weaknesses":[
-    "نقطة",
-    "نقطة",
-    "نقطة"
+    "ضعف 1",
+    "ضعف 2",
+    "ضعف 3"
   ],
 
   "cv_insights":[
@@ -178,7 +188,7 @@ ${cvText.substring(0,1200)}
 
       model: 'claude-sonnet-4-6',
 
-      max_tokens: 2200,
+      max_tokens: 2000,
 
       messages: [
         {
@@ -201,30 +211,25 @@ ${cvText.substring(0,1200)}
 
     }
 
-    let text = response.content[0].text;
+    const text = response.content[0].text;
 
-    text = cleanJSON(text);
-
-    const start = text.indexOf('{');
-    const end = text.lastIndexOf('}') + 1;
-
-    const finalJSON = text.substring(start, end);
+    const clean = extractJSON(text);
 
     let result;
 
     try {
 
-      result = JSON.parse(finalJSON);
+      result = JSON.parse(clean);
 
     } catch(err){
 
-      console.log(finalJSON);
+      console.log(clean);
 
       return {
         statusCode: 500,
         body: JSON.stringify({
           error: 'JSON Parse Failed',
-          raw: finalJSON
+          raw: clean
         })
       };
 
