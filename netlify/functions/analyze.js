@@ -36,8 +36,6 @@ function httpsPost(data) {
 
         } catch(err){
 
-          console.log('RAW RESPONSE:', raw);
-
           reject(err);
 
         }
@@ -66,91 +64,11 @@ function extractJSON(text){
   const start = clean.indexOf('{');
   const end = clean.lastIndexOf('}') + 1;
 
-  if (start === -1 || end === 0) {
-    throw new Error('No JSON found');
-  }
-
   return clean.substring(start, end);
 
 }
 
-function safeJSONParse(jsonText){
-
-  try {
-
-    return JSON.parse(jsonText);
-
-  } catch(err){
-
-    try {
-
-      const fixed = jsonText
-        .replace(/,\s*}/g, '}')
-        .replace(/,\s*]/g, ']')
-        .replace(/\n/g, ' ')
-        .replace(/\r/g, ' ')
-        .replace(/\t/g, ' ');
-
-      return JSON.parse(fixed);
-
-    } catch(e){
-
-      console.log('BROKEN JSON:', jsonText);
-
-      return {
-        error: true,
-        broken_json: jsonText
-      };
-
-    }
-
-  }
-
-}
-
-async function askClaude(prompt, tokens = 1000){
-
-  const response = await httpsPost({
-
-    model: 'claude-sonnet-4-6',
-
-    max_tokens: tokens,
-
-    messages: [
-      {
-        role: 'user',
-        content: prompt
-      }
-    ]
-
-  });
-
-  if (!response.content || !response.content[0]) {
-
-    console.log(response);
-
-    throw new Error('Claude API Error');
-
-  }
-
-  const rawText = response.content[0].text;
-
-  const jsonText = extractJSON(rawText);
-
-  return safeJSONParse(jsonText);
-
-}
-
 exports.handler = async (event) => {
-
-  if (event.httpMethod !== 'POST') {
-
-    return {
-      statusCode: 405,
-      body: 'Method Not Allowed'
-    };
-
-  }
 
   try {
 
@@ -162,171 +80,86 @@ exports.handler = async (event) => {
 
       return {
         statusCode: 400,
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify({
-          error: 'السيرة قصيرة'
+          error: 'CV too short'
         })
       };
 
     }
 
-    const cv = cvText.substring(0, 1200);
+    const prompt = `
+حلل هذه السيرة الذاتية بشكل احترافي ومختصر.
 
-    // PART 1
-    const part1 = await askClaude(`
-حلل السيرة التالية:
+${cvText.substring(0,1200)}
 
-${cv}
-
-أجب JSON فقط:
+أجب JSON فقط بدون markdown.
 
 {
-  "archetype":"اسم الشخصية",
-  "archetype_en":"English Name",
-  "archetype_emoji":"🔥",
-  "description":"وصف احترافي",
-  "market_view":"كيف يراك السوق",
-  "years_experience":5,
-  "companies_count":3,
-  "career_trend":"صاعد",
-  "market_demand":80,
+  "archetype":"",
+  "archetype_en":"",
+  "archetype_emoji":"",
 
-  "strengths":[
-    "ميزة 1",
-    "ميزة 2",
-    "ميزة 3"
-  ],
+  "description":"",
 
-  "weaknesses":[
-    "ضعف 1",
-    "ضعف 2",
-    "ضعف 3"
-  ]
-}
-`, 900);
+  "market_view":"",
 
-    // PART 2
-    const part2 = await askClaude(`
-حلل السيرة التالية:
+  "years_experience":0,
 
-${cv}
+  "companies_count":0,
 
-أجب JSON فقط:
+  "career_trend":"",
 
-{
+  "market_demand":0,
+
+  "strengths":["","",""],
+
+  "weaknesses":["","",""],
+
   "cv_insights":[
     {
       "icon":"📈",
-      "label":"اتجاه المسيرة",
-      "text":"تحليل"
-    },
-    {
-      "icon":"🏢",
-      "label":"جودة الشركات",
-      "text":"تحليل"
+      "label":"",
+      "text":""
     }
   ],
 
   "recommendations":[
     {
-      "title":"توصية",
-      "desc":"شرح"
-    },
-    {
-      "title":"توصية",
-      "desc":"شرح"
-    }
-  ],
-
-  "career_paths":[
-    {
-      "icon":"🚀",
-      "title":"مسار",
-      "desc":"وصف",
-      "match":90
-    }
-  ]
-}
-`, 5000);
-
-    // PART 3
-    const part3 = await askClaude(`
-حلل السيرة التالية:
-
-${cv}
-
-أجب JSON فقط:
-
-{
-  "courses":[
-    {
-      "num":"01",
-      "title":"دورة",
-      "reason":"سبب"
-    },
-    {
-      "num":"02",
-      "title":"دورة",
-      "reason":"سبب"
-    }
-  ],
-
-  "market_cards":[
-    {
-      "label":"الطلب",
-      "text":"تحليل",
-      "has_bar":true,
-      "bar_pct":80
+      "title":"",
+      "desc":""
     }
   ],
 
   "jobs":[
     {
-      "title":"Operations Manager",
-      "reason":"سبب",
-      "salary":"20K-30K SAR"
-    },
-    {
-      "title":"Business Operations Lead",
-      "reason":"سبب",
-      "salary":"30K-40K SAR"
+      "title":"",
+      "reason":"",
+      "salary":""
     }
   ]
 }
-`, 3000);
+`;
 
-    if (
-      part1.error ||
-      part2.error ||
-      part3.error
-    ) {
+    const response = await httpsPost({
 
-      return {
+      model: 'claude-sonnet-4-6',
 
-        statusCode: 500,
+      max_tokens: 1400,
 
-        headers: {
-          'Content-Type': 'application/json'
-        },
+      messages: [
+        {
+          role: 'user',
+          content: prompt
+        }
+      ]
 
-        body: JSON.stringify({
-          error: 'Claude returned broken JSON',
-          part1,
-          part2,
-          part3
-        })
+    });
 
-      };
+    const rawText = response.content[0].text;
 
-    }
+    const jsonText = extractJSON(rawText);
 
-    const result = {
-      ...part1,
-      ...part2,
-      ...part3
-    };
+    const result = JSON.parse(jsonText);
 
     return {
 
@@ -343,7 +176,7 @@ ${cv}
 
   } catch(err){
 
-    console.log('FINAL ERROR:', err);
+    console.log(err);
 
     return {
 
