@@ -68,6 +68,26 @@ function extractJSON(text){
 
 }
 
+function safeJSONParse(jsonText){
+
+  try {
+
+    return JSON.parse(jsonText);
+
+  } catch(err){
+
+    const fixed = jsonText
+      .replace(/,\s*}/g, '}')
+      .replace(/,\s*]/g, ']')
+      .replace(/\n/g, ' ')
+      .replace(/\r/g, ' ');
+
+    return JSON.parse(fixed);
+
+  }
+
+}
+
 async function askClaude(prompt, tokens = 1200){
 
   const response = await httpsPost({
@@ -95,7 +115,7 @@ async function askClaude(prompt, tokens = 1200){
 
   const jsonText = extractJSON(rawText);
 
-  return JSON.parse(jsonText);
+  return safeJSONParse(jsonText);
 
 }
 
