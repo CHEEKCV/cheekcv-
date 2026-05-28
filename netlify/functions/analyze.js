@@ -9,20 +9,15 @@ function httpsPost(data) {
     const body = JSON.stringify(data);
 
     const options = {
-
       hostname: 'api.anthropic.com',
-
       path: '/v1/messages',
-
       method: 'POST',
-
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Length': Buffer.byteLength(body)
       }
-
     };
 
     const req = https.request(options, (res) => {
@@ -32,8 +27,6 @@ function httpsPost(data) {
       res.on('data', chunk => raw += chunk);
 
       res.on('end', () => {
-
-        console.log('RAW:', raw.substring(0, 500));
 
         try {
 
@@ -59,13 +52,28 @@ function httpsPost(data) {
 
 }
 
+function cleanJSON(text){
+
+  return text
+    .replace(/```json/g, '')
+    .replace(/```/g, '')
+    .replace(/\n/g, ' ')
+    .replace(/\r/g, ' ')
+    .replace(/\t/g, ' ')
+    .replace(/,\s*}/g, '}')
+    .replace(/,\s*]/g, ']')
+    .replace(/"\s+"/g, '","')
+    .trim();
+
+}
+
 exports.handler = async (event) => {
 
-  if (event.httpMethod !== "POST") {
+  if (event.httpMethod !== 'POST') {
 
     return {
       statusCode: 405,
-      body: "Method Not Allowed"
+      body: 'Method Not Allowed'
     };
 
   }
@@ -79,113 +87,46 @@ exports.handler = async (event) => {
       return {
         statusCode: 400,
         body: JSON.stringify({
-          error: "السيرة قصيرة"
+          error: 'السيرة قصيرة'
         })
       };
 
     }
 
-    const cv = cvText.substring(0, 1200);
+    const prompt = `
+حلل السيرة التالية:
 
-    // المرحلة الأولى
-    const s1 = await httpsPost({
+${cvText.substring(0,1200)}
 
-      model: "claude-sonnet-4-6",
-
-      max_tokens: 1200,
-
-      messages: [
-        {
-          role: "user",
-          content: `
-حلل هذه السيرة:
-
-${cv}
-
-أجب JSON فقط:
+أجب JSON فقط بدون أي شرح.
 
 {
-  "archetype":"اسم",
-  "archetype_en":"Name",
+  "archetype":"اسم الشخصية",
+  "archetype_en":"English",
   "archetype_emoji":"🔥",
-  "description":"وصف قصير",
+  "description":"وصف",
   "market_view":"جملة",
   "years_experience":5,
   "companies_count":3,
   "career_trend":"صاعد",
-  "market_demand":80,
-  "strengths":["1","2","3"],
-  "weaknesses":["1","2","3"]
-}
-`
-        }
-      ]
+  "market_demand":85,
 
-    });
+  "strengths":[
+    "نقطة",
+    "نقطة",
+    "نقطة"
+  ],
 
-    if (!s1.content) {
+  "weaknesses":[
+    "نقطة",
+    "نقطة",
+    "نقطة"
+  ],
 
-      return {
-        statusCode: 500,
-        body: JSON.stringify({
-          error: "Claude المرحلة الأولى فشل",
-          raw: s1
-        })
-      };
-
-    }
-
-    const raw1 = s1.content[0].text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
-
-    const json1 = raw1.substring(
-      raw1.indexOf("{"),
-      raw1.lastIndexOf("}") + 1
-    );
-
-    const basic = JSON.parse(json1);
-
-    // المرحلة الثانية
-    const s2 = await httpsPost({
-
-      model: "claude-sonnet-4-6",
-
-      max_tokens: 1800,
-
-      messages: [
-        {
-          role: "user",
-          content: `
-السيرة:
-${cv}
-
-الشخصية:
-${basic.archetype}
-
-أجب JSON فقط بدون أي كلام إضافي.
-
-{
   "cv_insights":[
     {
       "icon":"📈",
       "label":"اتجاه المسيرة",
-      "text":"تحليل"
-    },
-    {
-      "icon":"🏢",
-      "label":"جودة الشركات",
-      "text":"تحليل"
-    },
-    {
-      "icon":"⚡",
-      "label":"طريقة كتابة الإنجازات",
-      "text":"تحليل"
-    },
-    {
-      "icon":"🎯",
-      "label":"الفجوة الأهم",
       "text":"تحليل"
     }
   ],
@@ -194,61 +135,21 @@ ${basic.archetype}
     {
       "title":"توصية",
       "desc":"شرح"
-    },
-    {
-      "title":"توصية",
-      "desc":"شرح"
-    },
-    {
-      "title":"توصية",
-      "desc":"شرح"
     }
   ],
 
   "career_paths":[
     {
-      "icon":"🏗️",
-      "title":"مسار",
-      "desc":"وصف",
-      "match":90
-    },
-    {
-      "icon":"🎯",
-      "title":"مسار",
-      "desc":"وصف",
-      "match":85
-    },
-    {
       "icon":"🚀",
       "title":"مسار",
       "desc":"وصف",
-      "match":80
+      "match":90
     }
   ],
 
   "courses":[
     {
       "num":"01",
-      "title":"دورة",
-      "reason":"سبب"
-    },
-    {
-      "num":"02",
-      "title":"دورة",
-      "reason":"سبب"
-    },
-    {
-      "num":"03",
-      "title":"دورة",
-      "reason":"سبب"
-    },
-    {
-      "num":"04",
-      "title":"دورة",
-      "reason":"سبب"
-    },
-    {
-      "num":"05",
       "title":"دورة",
       "reason":"سبب"
     }
@@ -259,118 +160,99 @@ ${basic.archetype}
       "label":"الطلب",
       "text":"تحليل",
       "has_bar":true,
-      "bar_pct":75
-    },
-    {
-      "label":"كيف يراك السوق",
-      "text":"تحليل",
-      "has_bar":false
-    },
-    {
-      "label":"نقطة التحول",
-      "text":"تحليل",
-      "has_bar":false
-    },
-    {
-      "label":"التحذير",
-      "text":"تحليل",
-      "has_bar":false
+      "bar_pct":80
     }
   ],
 
   "jobs":[
     {
-      "title":"وظيفة",
+      "title":"Operations Manager",
       "reason":"سبب",
-      "salary":"15K-25K SAR"
-    },
-    {
-      "title":"وظيفة",
-      "reason":"سبب",
-      "salary":"18K-28K SAR"
-    },
-    {
-      "title":"وظيفة",
-      "reason":"سبب",
-      "salary":"20K-35K SAR"
+      "salary":"20K-30K SAR"
     }
   ]
 }
-`
+`;
+
+    const response = await httpsPost({
+
+      model: 'claude-sonnet-4-6',
+
+      max_tokens: 2200,
+
+      messages: [
+        {
+          role: 'user',
+          content: prompt
         }
       ]
 
     });
 
-    if (!s2.content) {
+    if (!response.content) {
 
       return {
         statusCode: 500,
         body: JSON.stringify({
-          error: "Claude المرحلة الثانية فشل",
-          raw: s2
+          error: 'Claude API Error',
+          raw: response
         })
       };
 
     }
 
-    const raw2 = s2.content[0].text
-      .replace(/```json/g, "")
-      .replace(/```/g, "")
-      .trim();
+    let text = response.content[0].text;
 
-    const json2 = raw2.substring(
-      raw2.indexOf("{"),
-      raw2.lastIndexOf("}") + 1
-    );
+    text = cleanJSON(text);
 
-    let details = {};
+    const start = text.indexOf('{');
+    const end = text.lastIndexOf('}') + 1;
+
+    const finalJSON = text.substring(start, end);
+
+    let result;
 
     try {
 
-      details = JSON.parse(json2);
+      result = JSON.parse(finalJSON);
 
-    } catch(parseErr) {
+    } catch(err){
 
-      console.log("JSON FIX MODE");
+      console.log(finalJSON);
 
-      const fixed = json2
-        .replace(/,\s*}/g, "}")
-        .replace(/,\s*]/g, "]")
-        .replace(/\n/g, " ");
-
-      details = JSON.parse(fixed);
+      return {
+        statusCode: 500,
+        body: JSON.stringify({
+          error: 'JSON Parse Failed',
+          raw: finalJSON
+        })
+      };
 
     }
-
-    const result = {
-      ...basic,
-      ...details
-    };
 
     return {
 
       statusCode: 200,
 
       headers: {
-        "Content-Type": "application/json",
-        "Access-Control-Allow-Origin": "*"
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
       },
 
       body: JSON.stringify(result)
 
     };
 
-  } catch (err) {
+  } catch(err){
 
-    console.log('ERROR:', err);
+    console.log(err);
 
     return {
 
       statusCode: 500,
 
       headers: {
-        "Content-Type": "application/json"
+        'Content-Type': 'application/json'
       },
 
       body: JSON.stringify({
