@@ -9,20 +9,15 @@ function httpsPost(data) {
     const body = JSON.stringify(data);
 
     const options = {
-
       hostname: 'api.anthropic.com',
-
       path: '/v1/messages',
-
       method: 'POST',
-
       headers: {
         'Content-Type': 'application/json',
         'x-api-key': API_KEY,
         'anthropic-version': '2023-06-01',
         'Content-Length': Buffer.byteLength(body)
       }
-
     };
 
     const req = https.request(options, (res) => {
@@ -37,9 +32,7 @@ function httpsPost(data) {
 
         try {
 
-          const parsed = JSON.parse(raw);
-
-          resolve(parsed);
+          resolve(JSON.parse(raw));
 
         } catch(err){
 
@@ -75,6 +68,37 @@ function extractJSON(text){
 
 }
 
+async function askClaude(prompt, tokens = 1200){
+
+  const response = await httpsPost({
+
+    model: 'claude-sonnet-4-6',
+
+    max_tokens: tokens,
+
+    messages: [
+      {
+        role: 'user',
+        content: prompt
+      }
+    ]
+
+  });
+
+  if (!response.content) {
+
+    throw new Error('Claude API Error');
+
+  }
+
+  const rawText = response.content[0].text;
+
+  const jsonText = extractJSON(rawText);
+
+  return JSON.parse(jsonText);
+
+}
+
 exports.handler = async (event) => {
 
   if (event.httpMethod !== 'POST') {
@@ -106,13 +130,15 @@ exports.handler = async (event) => {
 
     }
 
-    const prompt = `
-حلل السيرة الذاتية التالية بشكل احترافي.
+    const cv = cvText.substring(0,1000);
 
-السيرة:
-${cvText.substring(0,1000)}
+    // PART 1
+    const part1 = await askClaude(`
+حلل السيرة التالية:
 
-أجب بـ JSON فقط بدون أي شرح.
+${cv}
+
+أجب JSON فقط:
 
 {
   "archetype":"اسم الشخصية",
@@ -141,8 +167,19 @@ ${cvText.substring(0,1000)}
     "ضعف 1",
     "ضعف 2",
     "ضعف 3"
-  ],
+  ]
+}
+`, 900);
 
+    // PART 2
+    const part2 = await askClaude(`
+حلل السيرة التالية:
+
+${cv}
+
+أجب JSON فقط:
+
+{
   "cv_insights":[
     {
       "icon":"📈",
@@ -165,8 +202,19 @@ ${cvText.substring(0,1000)}
       "desc":"وصف",
       "match":90
     }
-  ],
+  ]
+}
+`, 1000);
 
+    // PART 3
+    const part3 = await askClaude(`
+حلل السيرة التالية:
+
+${cv}
+
+أجب JSON فقط:
+
+{
   "courses":[
     {
       "num":"01",
@@ -192,64 +240,13 @@ ${cvText.substring(0,1000)}
     }
   ]
 }
-`;
+`, 1000);
 
-    const response = await httpsPost({
-
-      model: 'claude-sonnet-4-6',
-
-      max_tokens: 2000,
-
-      messages: [
-        {
-          role: 'user',
-          content: prompt
-        }
-      ]
-
-    });
-
-    if (!response.content) {
-
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          error: 'Claude API Error',
-          raw: response
-        })
-      };
-
-    }
-
-    const rawText = response.content[0].text;
-
-    const jsonText = extractJSON(rawText);
-
-    let result;
-
-    try {
-
-      result = JSON.parse(jsonText);
-
-    } catch(parseError){
-
-      console.log(jsonText);
-
-      return {
-        statusCode: 500,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          error: 'JSON Parse Failed',
-          raw: jsonText
-        })
-      };
-
-    }
+    const result = {
+      ...part1,
+      ...part2,
+      ...part3
+    };
 
     return {
 
