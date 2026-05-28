@@ -29,13 +29,17 @@ function httpsPost(data) {
 
       let raw = '';
 
-      res.on('data', chunk => raw += chunk);
+      res.on('data', chunk => {
+        raw += chunk;
+      });
 
       res.on('end', () => {
 
         try {
 
-          resolve(JSON.parse(raw));
+          const parsed = JSON.parse(raw);
+
+          resolve(parsed);
 
         } catch(err){
 
@@ -59,15 +63,15 @@ function httpsPost(data) {
 
 function extractJSON(text){
 
-  text = text
+  const clean = text
     .replace(/```json/g, '')
     .replace(/```/g, '')
     .trim();
 
-  const start = text.indexOf('{');
-  const end = text.lastIndexOf('}') + 1;
+  const start = clean.indexOf('{');
+  const end = clean.lastIndexOf('}') + 1;
 
-  return text.substring(start, end);
+  return clean.substring(start, end);
 
 }
 
@@ -84,12 +88,17 @@ exports.handler = async (event) => {
 
   try {
 
-    const { cvText } = JSON.parse(event.body);
+    const body = JSON.parse(event.body);
+
+    const cvText = body.cvText;
 
     if (!cvText || cvText.length < 50) {
 
       return {
         statusCode: 400,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           error: 'السيرة قصيرة'
         })
@@ -98,11 +107,12 @@ exports.handler = async (event) => {
     }
 
     const prompt = `
-حلل السيرة التالية بشكل احترافي وعميق:
+حلل السيرة الذاتية التالية بشكل احترافي.
 
+السيرة:
 ${cvText.substring(0,1000)}
 
-أجب JSON فقط بدون أي شرح إضافي.
+أجب بـ JSON فقط بدون أي شرح.
 
 {
   "archetype":"اسم الشخصية",
@@ -203,6 +213,9 @@ ${cvText.substring(0,1000)}
 
       return {
         statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           error: 'Claude API Error',
           raw: response
@@ -211,25 +224,28 @@ ${cvText.substring(0,1000)}
 
     }
 
-    const text = response.content[0].text;
+    const rawText = response.content[0].text;
 
-    const clean = extractJSON(text);
+    const jsonText = extractJSON(rawText);
 
     let result;
 
     try {
 
-      result = JSON.parse(clean);
+      result = JSON.parse(jsonText);
 
-    } catch(err){
+    } catch(parseError){
 
-      console.log(clean);
+      console.log(jsonText);
 
       return {
         statusCode: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        },
         body: JSON.stringify({
           error: 'JSON Parse Failed',
-          raw: clean
+          raw: jsonText
         })
       };
 
