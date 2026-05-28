@@ -206,17 +206,25 @@ ${cvText.substring(0,1200)}
 
     const rawText = response.content[0].text;
 
-    const jsonText = extractJSON(rawText);
-
     let result;
 
     try {
 
+      let jsonText = extractJSON(rawText);
+
+      // أول parse
       result = JSON.parse(jsonText);
+
+      // إذا Claude رجع string escaped
+      if (typeof result === 'string') {
+
+        result = JSON.parse(result);
+
+      }
 
     } catch(err){
 
-      console.log('BROKEN JSON:', jsonText);
+      console.log('BROKEN JSON:', rawText);
 
       return {
 
@@ -228,7 +236,7 @@ ${cvText.substring(0,1200)}
 
         body: JSON.stringify({
           error: 'Claude JSON Broken',
-          raw: jsonText
+          raw: rawText
         })
 
       };
