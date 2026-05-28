@@ -365,186 +365,25 @@ font-weight:600;
 
 <script>
 
-const canvas = document.getElementById('c');
-const ctx = canvas.getContext('2d');
-
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
-
-const particles = Array.from({length:50}, () => ({
-x:Math.random()*canvas.width,
-y:Math.random()*canvas.height,
-r:Math.random()*1.5+.3,
-vx:(Math.random()-.5)*.3,
-vy:(Math.random()-.5)*.3,
-o:Math.random()*.4+.05
-}));
-
-function draw(){
-
-ctx.clearRect(0,0,canvas.width,canvas.height);
-
-particles.forEach(p=>{
-
-ctx.beginPath();
-ctx.arc(p.x,p.y,p.r,0,Math.PI*2);
-
-ctx.fillStyle=`rgba(240,201,58,${p.o})`;
-
-ctx.fill();
-
-p.x += p.vx;
-p.y += p.vy;
-
-if(p.x<0 || p.x>canvas.width) p.vx *= -1;
-if(p.y<0 || p.y>canvas.height) p.vy *= -1;
-
-});
-
-requestAnimationFrame(draw);
-
-}
-
-draw();
-
-const stages = [
-"الذكاء الاصطناعي يقرأ ما بين السطور...",
-"تحليل طريقة تقديمك لنفسك...",
-"اكتشاف إشارات القيادة المخفية... 🔍",
-"تحليل احتمالية الاحتراق الوظيفي... 😂",
-"مقارنة خبرتك مع طريقة كتابتها...",
-"قياس مستوى الـ under-selling في سيرتك...",
-"اكتشاف شخصيتك المهنية الحقيقية...",
-"تحليل أنك تعمل أكثر مما يقوله منصبك...",
-"رصد الفجوة بين قيمتك الحقيقية وراتبك...",
-"تسجيل الدرجات بلا رحمة... 💀",
-"كتابة الحقيقة القاسية...",
-"تحديد الوظائف اللي تستاهلها فعلاً...",
-"بناء الحكم النهائي... 🔥"
-];
-
-const teasers = [
-"جاري فحص سيرتك الذاتية... 👀",
-"يبدو أنك تقلل من قيمتك المهنية بشكل خطير 😬",
-"الـ AI اكتشف إنك تشتغل بمستوى أعلى من مسماك...",
-"احتمالية عالية إنك ما طالبت بحقك يومًا... 💀",
-"شيًك شاف شيء في سيرتك ما أحد قاله لك من قبل 👀",
-"يبدو أن راتبك أقل بكثير مما تستاهله...",
-"اكتشاف مؤشرات قيادة مخفية في سيرتك... 🔥",
-"تقريرك على وشك يغير طريقة نظرتك لنفسك... 🎯"
-];
-
-let si = 0;
-let ti = 0;
-let pct = 0;
-let apiDone = false;
-
-const fillEl = document.getElementById('fill');
-const pctEl = document.getElementById('pct');
-const stageEl = document.getElementById('stage');
-const teaserEl = document.getElementById('teaser');
-
-function setText(el,txt){
-
-el.style.animation='none';
-
-void el.offsetHeight;
-
-el.style.animation='fadeStage .4s ease';
-
-el.textContent = txt;
-
-}
-
-setInterval(()=>{
-
-setText(stageEl,stages[si % stages.length]);
-
-si++;
-
-},2000);
-
-setInterval(()=>{
-
-setText(teaserEl,teasers[ti % teasers.length]);
-
-ti++;
-
-},3200);
-
-const pctInterval = setInterval(()=>{
-
-if(pct < (apiDone ? 100 : 85)){
-
-pct += Math.random()*2 + .3;
-
-if(!apiDone && pct > 85){
-pct = 85;
-}
-
-if(pct > 100){
-pct = 100;
-}
-
-fillEl.style.width = pct + '%';
-
-pctEl.textContent = Math.floor(pct) + '%';
-
-}
-
-if(pct >= 100){
-
-clearInterval(pctInterval);
-
-setText(stageEl,'التحليل اكتمل! 🔥');
-
-setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
-
-setTimeout(()=>{
-
-window.location.href='ascend_paywall.html';
-
-},1500);
-
-}
-
-},300);
-
 async function analyzeCV(){
-
-const cvText = localStorage.getItem('cheek_cv_text');
-
-if(!cvText || cvText.length < 50){
-
-alert('السيرة الذاتية غير موجودة');
-
-window.location.href='index.html';
-
-return;
-
-}
 
 try{
 
 const response = await fetch('/.netlify/functions/analyze', {
-
 method:'POST',
-
 headers:{
 'Content-Type':'application/json'
 },
-
 body:JSON.stringify({
-cvText
+cvText: localStorage.getItem('cheek_cv_text')
 })
-
 });
 
 const result = await response.json();
 
 console.log(result);
 
-if(result && result.archetype){
+if(result && result.success){
 
 localStorage.removeItem('cheek_analysis');
 
@@ -553,46 +392,15 @@ localStorage.setItem(
 JSON.stringify(result)
 );
 
-apiDone = true;
+window.location.href='ascend_paywall.html';
 
 }
 else{
 
 document.body.innerHTML = `
-<div style="
-background:#050816;
-color:white;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
-font-family:sans-serif;
-direction:rtl;
-text-align:center;
-">
-
-<div>
-
-<h1 style="font-size:32px;margin-bottom:20px;">
-❌ فشل التحليل
-</h1>
-
-<pre style="
-white-space:pre-wrap;
-line-height:1.8;
-background:#111827;
-padding:20px;
-border-radius:14px;
-max-width:700px;
-overflow:auto;
-text-align:right;
-">
-${JSON.stringify(result,null,2)}
-</pre>
-
-</div>
-
+<div style="padding:40px;color:white;background:#050816;min-height:100vh">
+<h1>❌ فشل التحليل</h1>
+<pre>${JSON.stringify(result,null,2)}</pre>
 </div>
 `;
 
@@ -601,43 +409,10 @@ ${JSON.stringify(result,null,2)}
 }
 catch(err){
 
-console.error(err);
-
 document.body.innerHTML = `
-<div style="
-background:#050816;
-color:white;
-min-height:100vh;
-display:flex;
-justify-content:center;
-align-items:center;
-padding:30px;
-font-family:sans-serif;
-direction:rtl;
-text-align:center;
-">
-
-<div>
-
-<h1 style="font-size:32px;margin-bottom:20px;">
-❌ خطأ أثناء التحليل
-</h1>
-
-<pre style="
-white-space:pre-wrap;
-line-height:1.8;
-background:#111827;
-padding:20px;
-border-radius:14px;
-max-width:700px;
-overflow:auto;
-text-align:right;
-">
-${err.message}
-</pre>
-
-</div>
-
+<div style="padding:40px;color:white;background:#050816;min-height:100vh">
+<h1>❌ خطأ</h1>
+<pre>${err.message}</pre>
 </div>
 `;
 
