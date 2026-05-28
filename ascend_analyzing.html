@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>شيًك — جاري التحليل</title>
 
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;600;700;800&display=swap" rel="stylesheet">
@@ -10,277 +10,118 @@
 <style>
 
 *{
-box-sizing:border-box;
 margin:0;
 padding:0;
+box-sizing:border-box;
 }
 
 body{
-background:#0A0A0A;
-font-family:'IBM Plex Sans Arabic',-apple-system,sans-serif;
-direction:rtl;
-color:#fff;
+background:#050816;
+color:white;
+font-family:'IBM Plex Sans Arabic',sans-serif;
 min-height:100vh;
-display:flex;
-flex-direction:column;
-align-items:center;
-justify-content:center;
 overflow:hidden;
-position:relative;
--webkit-font-smoothing:antialiased;
-}
-
-canvas{
-position:fixed;
-top:0;
-left:0;
-width:100%;
-height:100%;
-z-index:0;
-pointer-events:none;
-}
-
-.glow{
-position:fixed;
-top:50%;
-left:50%;
-transform:translate(-50%,-50%);
-width:500px;
-height:500px;
-background:radial-gradient(circle,rgba(240,201,58,.07) 0%,transparent 70%);
-pointer-events:none;
-z-index:0;
-animation:glowPulse 3s ease-in-out infinite;
-}
-
-@keyframes glowPulse{
-0%,100%{
-opacity:.6;
-transform:translate(-50%,-50%) scale(1)
-}
-50%{
-opacity:1;
-transform:translate(-50%,-50%) scale(1.15)
-}
-}
-
-.scan{
-position:fixed;
-left:0;
-right:0;
-height:2px;
-background:linear-gradient(90deg,transparent,rgba(240,201,58,.4),transparent);
-z-index:1;
-animation:scanLine 3.5s linear infinite;
-pointer-events:none;
-}
-
-@keyframes scanLine{
-0%{top:-2px}
-100%{top:100%}
-}
-
-main{
-position:relative;
-z-index:2;
-width:100%;
-max-width:420px;
-padding:24px 20px;
 display:flex;
-flex-direction:column;
+justify-content:center;
 align-items:center;
+direction:rtl;
+}
+
+.container{
+width:100%;
+max-width:460px;
+padding:24px;
+text-align:center;
 }
 
 .logo{
-display:flex;
-align-items:center;
-gap:8px;
-margin-bottom:44px;
-}
-
-.logo-box{
-width:30px;
-height:30px;
-background:#F0C93A;
-border-radius:9px;
-display:grid;
-place-items:center;
-}
-
-.logo-name{
-font-size:20px;
+font-size:34px;
 font-weight:800;
-color:#fff;
-letter-spacing:-.02em;
+margin-bottom:40px;
 }
 
-.ring-wrap{
-position:relative;
-width:110px;
-height:110px;
-margin-bottom:36px;
-}
-
-.ring-outer{
-position:absolute;
-inset:0;
+.loader{
+width:120px;
+height:120px;
 border-radius:50%;
-border:2px solid rgba(240,201,58,.3);
-animation:spinRing 6s linear infinite;
-}
-
-.ring-outer::before{
-content:'';
-position:absolute;
-top:-4px;
-left:50%;
-width:8px;
-height:8px;
-background:#F0C93A;
-border-radius:50%;
-transform:translateX(-50%);
-box-shadow:0 0 14px rgba(240,201,58,.8);
-}
-
-.ring-mid{
-position:absolute;
-inset:14px;
-border-radius:50%;
-border:1.5px dashed rgba(240,201,58,.15);
-animation:spinRing 4s linear infinite reverse;
-}
-
-.ring-center{
-position:absolute;
-inset:26px;
-border-radius:50%;
-background:rgba(240,201,58,.1);
-border:2px solid rgba(240,201,58,.3);
-display:grid;
-place-items:center;
-font-size:26px;
-animation:pulseSlow 2s ease-in-out infinite;
-}
-
-@keyframes spinRing{
-to{
-transform:rotate(360deg)
-}
-}
-
-@keyframes pulseSlow{
-0%,100%{
-opacity:.8;
-transform:scale(1)
-}
-50%{
-opacity:1;
-transform:scale(1.05)
-}
-}
-
-.stage-wrap{
-width:100%;
-background:rgba(255,255,255,.04);
-border:1px solid rgba(255,255,255,.1);
-border-radius:16px;
-padding:20px;
-margin-bottom:14px;
-min-height:68px;
+border:3px solid rgba(240,201,58,.15);
+border-top:3px solid #F0C93A;
+margin:0 auto 30px;
+animation:spin 1s linear infinite;
 display:flex;
 align-items:center;
 justify-content:center;
+font-size:40px;
 }
 
-.stage-text{
-font-size:15px;
-font-weight:700;
-color:#fff;
-text-align:center;
-line-height:1.6;
-animation:fadeStage .4s ease;
+@keyframes spin{
+100%{
+transform:rotate(360deg);
+}
 }
 
-.teaser-wrap{
-width:100%;
+.stage{
+font-size:22px;
+font-weight:800;
+line-height:1.8;
+margin-bottom:20px;
+min-height:80px;
+}
+
+.teaser{
 background:rgba(240,201,58,.08);
-border:1px solid rgba(240,201,58,.25);
-border-radius:12px;
-padding:14px 16px;
+border:1px solid rgba(240,201,58,.2);
+padding:18px;
+border-radius:16px;
+font-size:15px;
+line-height:1.9;
 margin-bottom:28px;
-min-height:50px;
-display:flex;
-align-items:center;
-justify-content:center;
-}
-
-.teaser-text{
-font-size:13px;
-font-weight:600;
-color:rgba(240,201,58,.9);
-text-align:center;
-line-height:1.6;
-animation:fadeStage .4s ease;
-}
-
-@keyframes fadeStage{
-from{
-opacity:0;
-transform:translateY(6px)
-}
-to{
-opacity:1;
-transform:none
-}
+color:#F0C93A;
+font-weight:700;
 }
 
 .progress-wrap{
-width:100%;
-margin-bottom:8px;
+margin-top:20px;
 }
 
-.progress-header{
+.progress-top{
 display:flex;
 justify-content:space-between;
 align-items:center;
-margin-bottom:10px;
+margin-bottom:12px;
 }
 
 .progress-label{
-font-size:11px;
+font-size:13px;
+opacity:.6;
 font-weight:700;
-color:rgba(255,255,255,.3);
-letter-spacing:1px;
 }
 
 .progress-pct{
-font-size:22px;
+font-size:30px;
 font-weight:800;
 color:#F0C93A;
 }
 
 .progress-bar{
-height:6px;
+height:8px;
 background:rgba(255,255,255,.08);
-border-radius:99px;
+border-radius:999px;
 overflow:hidden;
 }
 
 .progress-fill{
 height:100%;
-background:linear-gradient(90deg,#D4A800,#F0C93A);
-border-radius:99px;
 width:0%;
-transition:width .6s ease;
-box-shadow:0 0 10px rgba(240,201,58,.4);
+background:linear-gradient(90deg,#D4A800,#F0C93A);
+border-radius:999px;
+transition:width .4s ease;
 }
 
 .warning{
-font-size:12px;
-color:rgba(255,255,255,.7);
-text-align:center;
-margin-top:24px;
-letter-spacing:.5px;
+margin-top:28px;
+font-size:13px;
+opacity:.7;
 font-weight:600;
 }
 
@@ -289,95 +130,172 @@ font-weight:600;
 
 <body>
 
-<canvas id="c"></canvas>
-
-<div class="glow"></div>
-
-<div class="scan"></div>
-
-<main>
-
-<a href="index.html" style="text-decoration:none;">
+<div class="container">
 
 <div class="logo">
-
-<div class="logo-box">
-🧠
+شيًك 🧠
 </div>
 
-<span class="logo-name">
-شيًك
-</span>
-
-</div>
-
-</a>
-
-<div class="ring-wrap">
-
-<div class="ring-outer"></div>
-
-<div class="ring-mid"></div>
-
-<div class="ring-center">
+<div class="loader">
 🔥
 </div>
 
-</div>
-
-<div class="stage-wrap">
-<div class="stage-text" id="stage">
+<div class="stage" id="stage">
 الذكاء الاصطناعي يقرأ ما بين السطور...
 </div>
-</div>
 
-<div class="teaser-wrap">
-<div class="teaser-text" id="teaser">
-جاري فحص سيرتك الذاتية... 👀
-</div>
+<div class="teaser" id="teaser">
+جاري اكتشاف حقيقتك المهنية 👀
 </div>
 
 <div class="progress-wrap">
 
-<div class="progress-header">
+<div class="progress-top">
 
-<span class="progress-label">
-التحليل جارٍ
-</span>
+<div class="progress-label">
+التحليل جاري
+</div>
 
-<span class="progress-pct" id="pct">
+<div class="progress-pct" id="pct">
 0%
-</span>
+</div>
 
 </div>
 
 <div class="progress-bar">
+
 <div class="progress-fill" id="fill"></div>
+
 </div>
 
 </div>
 
 <div class="warning">
-⚠️ لا تغلق الصفحة · شيًك يعمل على سيرتك الحين
+⚠️ لا تغلق الصفحة — شيًك يعمل على تحليل سيرتك الآن
 </div>
 
-</main>
+</div>
 
 <script>
+
+const stages = [
+
+'الذكاء الاصطناعي يقرأ ما بين السطور...',
+'تحليل شخصيتك المهنية...',
+'فحص نقاط القوة الخفية...',
+'تحليل طريقة تقديمك لنفسك...',
+'مقارنة خبرتك بالسوق...',
+'اكتشاف الفجوة المهنية...',
+'تحديد الوظائف المناسبة...',
+'بناء الحكم النهائي 🔥'
+
+];
+
+const teasers = [
+
+'يبدو أنك تقلل من قيمتك المهنية 👀',
+'هناك إشارات قيادية قوية في سيرتك...',
+'الذكاء الاصطناعي اكتشف شيء مثير...',
+'احتمالية أنك تستحق راتب أعلى مرتفعة 💸',
+'طريقة كتابتك تخفي جزء كبير من قيمتك...',
+'شيًك يحلل حقيقتك المهنية الآن 🔥'
+
+];
+
+let stageIndex = 0;
+let teaserIndex = 0;
+
+const stageEl = document.getElementById('stage');
+const teaserEl = document.getElementById('teaser');
+
+setInterval(()=>{
+
+stageIndex++;
+
+stageEl.innerText =
+stages[stageIndex % stages.length];
+
+},2200);
+
+setInterval(()=>{
+
+teaserIndex++;
+
+teaserEl.innerText =
+teasers[teaserIndex % teasers.length];
+
+},3200);
+
+const fill = document.getElementById('fill');
+const pct = document.getElementById('pct');
+
+let progress = 0;
+let apiDone = false;
+
+const progressLoop = setInterval(()=>{
+
+if(progress < (apiDone ? 100 : 88)){
+
+progress += Math.random() * 3;
+
+if(!apiDone && progress > 88){
+progress = 88;
+}
+
+if(progress > 100){
+progress = 100;
+}
+
+fill.style.width = progress + '%';
+
+pct.innerText =
+Math.floor(progress) + '%';
+
+}
+
+if(progress >= 100){
+
+clearInterval(progressLoop);
+
+window.location.href =
+'ascend_paywall.html';
+
+}
+
+},300);
 
 async function analyzeCV(){
 
 try{
 
-const response = await fetch('/.netlify/functions/analyze', {
+const cvText =
+localStorage.getItem('cheek_cv_text');
+
+if(!cvText){
+
+alert('السيرة الذاتية غير موجودة');
+
+window.location.href='index.html';
+
+return;
+
+}
+
+const response = await fetch(
+'/.netlify/functions/analyze',
+{
 method:'POST',
+
 headers:{
 'Content-Type':'application/json'
 },
+
 body:JSON.stringify({
-cvText: localStorage.getItem('cheek_cv_text')
+cvText
 })
-});
+
+}
+);
 
 const result = await response.json();
 
@@ -385,22 +303,41 @@ console.log(result);
 
 if(result && result.success){
 
-localStorage.removeItem('cheek_analysis');
-
 localStorage.setItem(
 'cheek_analysis',
 JSON.stringify(result)
 );
 
-window.location.href='ascend_paywall.html';
+apiDone = true;
 
 }
 else{
 
 document.body.innerHTML = `
-<div style="padding:40px;color:white;background:#050816;min-height:100vh">
-<h1>❌ فشل التحليل</h1>
-<pre>${JSON.stringify(result,null,2)}</pre>
+<div style="
+padding:40px;
+color:white;
+font-family:sans-serif;
+direction:rtl;
+background:#050816;
+min-height:100vh;
+">
+
+<h1 style="margin-bottom:20px;">
+❌ فشل التحليل
+</h1>
+
+<pre style="
+white-space:pre-wrap;
+line-height:1.8;
+background:#111827;
+padding:20px;
+border-radius:16px;
+overflow:auto;
+">
+${JSON.stringify(result,null,2)}
+</pre>
+
 </div>
 `;
 
@@ -409,10 +346,33 @@ document.body.innerHTML = `
 }
 catch(err){
 
+console.error(err);
+
 document.body.innerHTML = `
-<div style="padding:40px;color:white;background:#050816;min-height:100vh">
-<h1>❌ خطأ</h1>
-<pre>${err.message}</pre>
+<div style="
+padding:40px;
+color:white;
+font-family:sans-serif;
+direction:rtl;
+background:#050816;
+min-height:100vh;
+">
+
+<h1 style="margin-bottom:20px;">
+❌ خطأ أثناء التحليل
+</h1>
+
+<pre style="
+white-space:pre-wrap;
+line-height:1.8;
+background:#111827;
+padding:20px;
+border-radius:16px;
+overflow:auto;
+">
+${err.message}
+</pre>
+
 </div>
 `;
 
