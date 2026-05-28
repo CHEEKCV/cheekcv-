@@ -297,7 +297,48 @@ cvText
 }
 );
 
-const result = await response.json();
+const text = await response.text();
+
+console.log(text);
+
+let result;
+
+try{
+
+result = JSON.parse(text);
+
+}
+catch(e){
+
+document.body.innerHTML = `
+<div style="
+padding:40px;
+color:white;
+background:#050816;
+min-height:100vh;
+font-family:sans-serif;
+direction:rtl;
+">
+
+<h1>❌ JSON غير صالح</h1>
+
+<pre style="
+white-space:pre-wrap;
+line-height:1.8;
+background:#111827;
+padding:20px;
+border-radius:16px;
+overflow:auto;
+">
+${text}
+</pre>
+
+</div>
+`;
+
+throw e;
+
+}
 
 console.log(result);
 
