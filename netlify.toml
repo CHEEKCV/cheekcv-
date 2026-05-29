@@ -1,6 +1,11 @@
 [build]
   functions = "netlify/functions"
 
+[[headers]]
+  for = "/*.html"
+  [headers.values]
+    Cache-Control = "no-cache, no-store, must-revalidate"
+
 [functions]
   node_bundler = "esbuild"
   included_files = ["node_modules/@netlify/blobs/**"]
