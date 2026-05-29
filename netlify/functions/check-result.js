@@ -16,7 +16,11 @@ exports.handler = async (event) => {
   }
 
   try {
-    const store = getStore('cv-results');
+    const store = getStore({
+      name: 'cv-results',
+      siteID: process.env.SITE_ID,
+      token: process.env.NETLIFY_TOKEN
+    });
     const result = await store.get(jobId, { type: 'json' });
 
     if (!result) {

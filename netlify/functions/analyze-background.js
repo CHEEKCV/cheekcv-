@@ -119,7 +119,11 @@ exports.handler = async (event) => {
     return { statusCode: 405, body: "Method Not Allowed" };
   }
 
-  const store = getStore('cv-results');
+  const store = getStore({
+    name: 'cv-results',
+    siteID: process.env.SITE_ID,
+    token: process.env.NETLIFY_TOKEN
+  });
 
   let jobId, cvText;
   try {
