@@ -201,13 +201,13 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
 <!-- HERO -->
 <div class="hero">
   <div class="archetype-badge">🎭 شخصيتك المهنية</div>
-  <h1 class="hero-name">العقل <span>التنفيذي</span></h1>
-  <p class="hero-sub">واضح إنك ما تفكر كموظف عادي — تشتغل بعقلية تشغيل وإدارة وربط بين الأقسام. كل شي فيك يقول leadership… إلا المسمى الوظيفي.</p>
-  <div class="score-strip">
-    <div class="score-item"><span class="score-num">15+</span><span class="score-label">سنوات خبرة</span></div>
-    <div class="score-item"><span class="score-num">6</span><span class="score-label">شركات</span></div>
-    <div class="score-item"><span class="score-num">85%</span><span class="score-label">الطلب في السوق</span></div>
-    <div class="score-item"><span class="score-num">↗</span><span class="score-label">اتجاه المسيرة</span></div>
+  <h1 class="hero-name" id="heroName">جاري التحميل...</h1>
+  <p class="hero-sub" id="heroSub"></p>
+  <div class="score-strip" id="scoreStrip">
+    <div class="score-item"><span class="score-num">—</span><span class="score-label">سنوات خبرة</span></div>
+    <div class="score-item"><span class="score-num">—</span><span class="score-label">شركات</span></div>
+    <div class="score-item"><span class="score-num">—</span><span class="score-label">الطلب في السوق</span></div>
+    <div class="score-item"><span class="score-num">—</span><span class="score-label">اتجاه المسيرة</span></div>
   </div>
 </div>
 
@@ -278,5 +278,20 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
   <div class="footer-copy">صُنع بـ ❤️ في الرياض · © 2026</div>
 </footer>
 
+<script>
+const D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
+if (D && D.archetype) {
+  const nameParts = D.archetype.split(' ');
+  const lastWord = nameParts.pop();
+  document.getElementById('heroName').innerHTML = nameParts.join(' ') + ' <span>' + lastWord + '</span>';
+  document.getElementById('heroSub').textContent = D.description ? D.description.split('\n')[0] : (D.market_view || '');
+  const trend = D.career_trend === 'صاعد' ? '↗' : D.career_trend === 'نازل' ? '↘' : '→';
+  document.getElementById('scoreStrip').innerHTML =
+    '<div class="score-item"><span class="score-num">' + (D.years_experience||'—') + '+</span><span class="score-label">سنوات خبرة</span></div>' +
+    '<div class="score-item"><span class="score-num">' + (D.companies_count||'—') + '</span><span class="score-label">شركات</span></div>' +
+    '<div class="score-item"><span class="score-num">' + (D.market_demand||'—') + '%</span><span class="score-label">الطلب في السوق</span></div>' +
+    '<div class="score-item"><span class="score-num">' + trend + '</span><span class="score-label">اتجاه المسيرة</span></div>';
+}
+</script>
 </body>
 </html>
