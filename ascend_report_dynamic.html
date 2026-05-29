@@ -141,13 +141,20 @@ footer{border-top:2px solid var(--black);background:var(--white);padding:14px 20
 <script>
 // Try v2 first, fallback to v1 for compatibility
 let D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
-if (!D) D = JSON.parse(localStorage.getItem('cheek_analysis') || 'null');
 
-// Demo data removed - real analysis required
+// Clear stale data from old system (pre-background-function) that lacks status:'done'
+if (D && D.status !== 'done') {
+  localStorage.removeItem('cheek_analysis_v2');
+  localStorage.removeItem('cheek_analysis');
+  D = null;
+}
 
-// NO MORE DEMO FALLBACK - show error if no real analysis
-if (!D || !D.archetype) {
+function showNoData() {
   document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;flex-direction:column;padding:20px;text-align:center;font-family:IBM Plex Sans Arabic,sans-serif;direction:rtl;"><div style="font-size:48px;margin-bottom:16px;">⚠️</div><h2 style="margin-bottom:12px;">لا يوجد تحليل</h2><p style="color:#666;margin-bottom:24px;">يبدو إنك دخلت هذي الصفحة بدون تحليل سيرة ذاتية.</p><button onclick="window.location.href=\'index.html\'" style="background:#F0C93A;color:#1a1a1a;border:2px solid #1a1a1a;border-radius:12px;padding:14px 28px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;">ارفع سيرتك الآن</button></div>';
+}
+
+if (!D || !D.archetype) {
+  showNoData();
   throw new Error('No analysis data');
 }
 const d = D;
