@@ -108,14 +108,14 @@ setInterval(()=>{setText(teaserEl,teasers[ti%teasers.length]);ti++;},3200);
 
 const pctInterval = setInterval(()=>{
   if(apiFailed) { clearInterval(pctInterval); return; }
-  if(pct < (apiDone ? 100 : 90)){
-    pct += apiDone ? 3 : 0.6;
-    if(!apiDone && pct>90) pct=90;
+  if(pct < (apiDone ? 100 : 95)){
+    pct += apiDone ? 5 : 0.3;
+    if(!apiDone && pct>95) pct=95;
     if(pct>100) pct=100;
     fillEl.style.width=pct+'%';
     pctEl.textContent=Math.floor(pct)+'%';
   }
-  if(pct>=100){
+  if(pct>=100 && apiDone){
     clearInterval(pctInterval);
     setText(stageEl,'التحليل اكتمل! 🔥');
     setText(teaserEl,'شيًك جاهز يخبرك الحقيقة... 👀');
