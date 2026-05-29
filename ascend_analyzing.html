@@ -130,6 +130,11 @@ function showError(msg) {
   document.getElementById('errorMsg').textContent = msg || 'جرب مرة ثانية بعد دقيقة';
 }
 
+function generateJobId() {
+  return ([1e7]+-1e3+-4e3+-8e3+-1e11).replace(/[018]/g, c =>
+    (c ^ crypto.getRandomValues(new Uint8Array(1))[0] & 15 >> c / 4).toString(16));
+}
+
 async function analyzeCV() {
   const cvText = localStorage.getItem('cheek_cv_text');
   if(!cvText || cvText.length < 50) {
@@ -137,35 +142,65 @@ async function analyzeCV() {
     return;
   }
 
-  // Clear old analysis cache
   localStorage.removeItem('cheek_analysis');
   localStorage.removeItem('cheek_analysis_v2');
 
+  const jobId = generateJobId();
+
   try {
-    const res = await fetch('/.netlify/functions/analyze', {
+    // Fire-and-forget background function — returns 202 immediately
+    const res = await fetch('/.netlify/functions/analyze-background', {
       method: 'POST',
       headers: {'Content-Type':'application/json'},
-      body: JSON.stringify({cvText})
+      body: JSON.stringify({cvText, jobId})
     });
 
-    if (!res.ok) {
-      const errText = await res.text();
-      throw new Error('API returned ' + res.status);
+    if (res.status !== 202) {
+      throw new Error('فشل بدء التحليل: ' + res.status);
     }
-
-    const result = await res.json();
-    if (!result || !result.archetype) {
-      throw new Error(result.error || 'Invalid response');
-    }
-
-    // Save with versioning
-    localStorage.setItem('cheek_analysis_v2', JSON.stringify(result));
-    localStorage.setItem('cheek_analysis_timestamp', Date.now().toString());
-    apiDone = true;
   } catch(e) {
-    console.error('Analysis error:', e);
-    showError('فشل التحليل: ' + (e.message || 'حاول مرة ثانية'));
+    console.error('Start error:', e);
+    showError('فشل بدء التحليل: ' + (e.message || 'حاول مرة ثانية'));
+    return;
   }
+
+  // Poll for result every 2.5 seconds, up to 3 minutes
+  const maxAttempts = 72;
+  let attempts = 0;
+
+  const poll = async () => {
+    if (apiFailed) return;
+    attempts++;
+    if (attempts > maxAttempts) {
+      showError('استغرق التحليل وقتاً طويلاً، جرب مرة ثانية');
+      return;
+    }
+
+    try {
+      const res = await fetch('/.netlify/functions/check-result?id=' + jobId);
+      const data = await res.json();
+
+      if (data.status === 'done' && data.archetype) {
+        localStorage.setItem('cheek_analysis_v2', JSON.stringify(data));
+        localStorage.setItem('cheek_analysis_timestamp', Date.now().toString());
+        apiDone = true;
+        return;
+      }
+
+      if (data.status === 'error') {
+        showError('فشل التحليل: ' + (data.error || 'حاول مرة ثانية'));
+        return;
+      }
+
+      // Still pending — poll again
+      setTimeout(poll, 2500);
+    } catch(e) {
+      console.error('Poll error:', e);
+      setTimeout(poll, 3000);
+    }
+  };
+
+  setTimeout(poll, 3000);
 }
 
 analyzeCV();

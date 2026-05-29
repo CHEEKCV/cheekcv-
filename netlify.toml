@@ -3,6 +3,13 @@
 
 [functions]
   node_bundler = "esbuild"
+  included_files = ["node_modules/@netlify/blobs/**"]
 
 [functions."analyze"]
   timeout = 60
+
+[functions."analyze-background"]
+  type = "background"
+
+[functions."check-result"]
+  timeout = 10
