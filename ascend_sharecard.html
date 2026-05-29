@@ -161,9 +161,9 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
   <div class="card-wrap">
     <div class="card-dark active" id="card-dark">
       <div class="cd-badge">🎭 شخصيتك المهنية</div>
-      <div class="cd-emojis">🧠⚡</div>
-      <div class="cd-name">العقل <span>التنفيذي</span></div>
-      <div class="cd-desc">واضح إنك ما تفكر كموظف عادي — تشتغل بعقلية تشغيل وإدارة وربط بين الأقسام. كل شي فيك يقول leadership… إلا المسمى الوظيفي.</div>
+      <div class="cd-emojis" id="emoji-dark"></div>
+      <div class="cd-name" id="name-dark"></div>
+      <div class="cd-desc" id="desc-dark"></div>
       <div class="cd-divider"></div>
       <div class="cd-footer">
         <div class="cd-logo">
@@ -178,16 +178,16 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
           </div>
           <span class="cd-logo-name">شيًك</span>
         </div>
-        <span class="cd-url">cheekcv.com</span>
+        <span class="cd-url">cheekcv.xyz</span>
       </div>
     </div>
 
     <!-- LIGHT CARD -->
     <div class="card-light" id="card-light">
       <div class="cl-badge">🎭 شخصيتك المهنية</div>
-      <div class="cd-emojis">🧠⚡</div>
-      <div class="cl-name">العقل <span>التنفيذي</span></div>
-      <div class="cl-desc">واضح إنك ما تفكر كموظف عادي — تشتغل بعقلية تشغيل وإدارة وربط بين الأقسام. كل شي فيك يقول leadership… إلا المسمى الوظيفي.</div>
+      <div class="cd-emojis" id="emoji-light"></div>
+      <div class="cl-name" id="name-light"></div>
+      <div class="cl-desc" id="desc-light"></div>
       <div class="cl-divider"></div>
       <div class="cl-footer">
         <div class="cl-logo">
@@ -202,16 +202,16 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
           </div>
           <span class="cl-logo-name">شيًك</span>
         </div>
-        <span class="cl-url">cheekcv.com</span>
+        <span class="cl-url">cheekcv.xyz</span>
       </div>
     </div>
 
     <!-- YELLOW CARD -->
     <div class="card-yellow" id="card-yellow">
       <div class="cy-badge">🎭 شخصيتك المهنية</div>
-      <div class="cd-emojis">🧠⚡</div>
-      <div class="cy-name">العقل التنفيذي</div>
-      <div class="cy-desc">واضح إنك ما تفكر كموظف عادي — تشتغل بعقلية تشغيل وإدارة وربط بين الأقسام. كل شي فيك يقول leadership… إلا المسمى الوظيفي.</div>
+      <div class="cd-emojis" id="emoji-yellow"></div>
+      <div class="cy-name" id="name-yellow"></div>
+      <div class="cy-desc" id="desc-yellow"></div>
       <div class="cy-divider"></div>
       <div class="cy-footer">
         <div class="cy-logo">
@@ -226,7 +226,7 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
           </div>
           <span class="cy-logo-name">شيًك</span>
         </div>
-        <span class="cy-url">cheekcv.com</span>
+        <span class="cy-url">cheekcv.xyz</span>
       </div>
     </div>
   </div>
@@ -266,26 +266,79 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
   <div class="footer-copy">© 2026 · Riyadh · KSA</div>
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
+// ── Load real data from localStorage ──
+const D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
+const archetype = D?.archetype || 'شخصيتك المهنية';
+const emoji     = D?.archetype_emoji || '🎭';
+const desc      = D?.description ? D.description.split('\n')[0] : 'حلل سيرتك الذاتية على شيًك';
+
+// Build archetype name HTML (last word highlighted)
+function nameHTML(type) {
+  const parts = archetype.split(' ');
+  const last  = parts.pop();
+  if (type === 'dark')   return parts.join(' ') + ' <span style="color:#F0C93A">' + last + '</span>';
+  if (type === 'light')  return parts.join(' ') + ' <span style="background:#F0C93A;border:2px solid #1a1a1a;border-radius:8px;padding:0 8px;display:inline-block">' + last + '</span>';
+  return archetype; // yellow — no highlight needed
+}
+
+// Fill all three cards
+['dark','light','yellow'].forEach(t => {
+  document.getElementById('emoji-'  + t).textContent = emoji;
+  document.getElementById('name-'   + t).innerHTML   = nameHTML(t);
+  document.getElementById('desc-'   + t).textContent = desc;
+});
+
+// ── Card switching ──
+let activeCard = 'dark';
 function switchCard(type, tab) {
+  activeCard = type;
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   tab.classList.add('active');
   document.querySelectorAll('.card-dark,.card-light,.card-yellow').forEach(c => c.classList.remove('active'));
-  document.getElementById('card-'+type).classList.add('active');
+  document.getElementById('card-' + type).classList.add('active');
 }
 
+// ── Download card as image ──
+async function downloadCard() {
+  const btn = document.querySelector('.btn-screenshot');
+  btn.textContent = '⏳ جاري التحويل...';
+  btn.disabled = true;
+  try {
+    const el = document.getElementById('card-' + activeCard);
+    const canvas = await html2canvas(el, {
+      scale: 3,
+      useCORS: true,
+      backgroundColor: null,
+      logging: false
+    });
+    const link = document.createElement('a');
+    link.download = 'شخصيتي-' + archetype.replace(/\s+/g,'-') + '.png';
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  } catch(e) {
+    alert('تعذّر حفظ الصورة، جرب من متصفح آخر');
+  }
+  btn.innerHTML = '📸 احفظ ككارد';
+  btn.disabled = false;
+}
+
+// ── Share on X ──
 function shareX() {
-  const text = 'طلعت شخصيتي المهنية "العقل التنفيذي" على شيًك 👀\nاكتشف شخصيتك: cheekcv.com';
-  window.open('https://twitter.com/intent/tweet?text='+encodeURIComponent(text), '_blank');
+  const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
+  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
+// ── Share on WhatsApp ──
 function shareWA() {
-  const text = 'طلعت شخصيتي المهنية "العقل التنفيذي" على شيًك 👀\nاكتشف شخصيتك: cheekcv.com';
-  window.open('https://wa.me/?text='+encodeURIComponent(text), '_blank');
+  const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
+  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
+// ── TikTok ──
 function shareTT() {
-  alert('TikTok ما يدعم مشاركة مباشرة — احفظ الكارد وارفعه يدوياً 📸');
+  downloadCard();
 }
 </script>
 </body>
