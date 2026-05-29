@@ -179,11 +179,11 @@ ${archetypesList}
     }));
 
     const result = {
+      ...data,
       archetype: archetypeData.name,
       archetype_en: archetypeData.en,
       archetype_emoji: archetypeData.emoji,
       archetype_id: data.archetype_id,
-      ...data
     };
 
     console.log('SUCCESS:', archetypeData.name);

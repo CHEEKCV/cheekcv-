@@ -196,13 +196,14 @@ ${archetypesList}
       bar_pct: idx === 0 ? data.market_demand : undefined
     }));
 
+    // Spread data first so our mapped archetype fields always win
     const result = {
       status: 'done',
+      ...data,
       archetype: archetypeData.name,
       archetype_en: archetypeData.en,
       archetype_emoji: archetypeData.emoji,
       archetype_id: data.archetype_id,
-      ...data
     };
 
     // Store result — expires after 1 hour
