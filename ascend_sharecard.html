@@ -266,28 +266,25 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
   <div class="footer-copy">© 2026 · Riyadh · KSA</div>
 </footer>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
-// ── Load real data from localStorage ──
-const D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
-const archetype = D?.archetype || 'شخصيتك المهنية';
-const emoji     = D?.archetype_emoji || '🎭';
-const desc      = D?.description ? D.description.split('\n')[0] : 'حلل سيرتك الذاتية على شيًك';
+// ── Load real data ──
+const D        = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
+const archetype = D && D.archetype ? D.archetype : 'شخصيتك المهنية';
+const emoji     = D && D.archetype_emoji ? D.archetype_emoji : '🎭';
+const desc      = D && D.description ? D.description.split('\n')[0] : 'حلل سيرتك الذاتية على شيًك';
 
-// Build archetype name HTML (last word highlighted)
+// ── Fill DOM cards ──
 function nameHTML(type) {
   const parts = archetype.split(' ');
   const last  = parts.pop();
-  if (type === 'dark')   return parts.join(' ') + ' <span style="color:#F0C93A">' + last + '</span>';
-  if (type === 'light')  return parts.join(' ') + ' <span style="background:#F0C93A;border:2px solid #1a1a1a;border-radius:8px;padding:0 8px;display:inline-block">' + last + '</span>';
-  return archetype; // yellow — no highlight needed
+  if (type === 'dark')  return parts.join(' ') + ' <span style="color:#F0C93A">' + last + '</span>';
+  if (type === 'light') return parts.join(' ') + ' <span style="background:#F0C93A;border:2px solid #1a1a1a;border-radius:8px;padding:0 8px;display:inline-block">' + last + '</span>';
+  return archetype;
 }
-
-// Fill all three cards
 ['dark','light','yellow'].forEach(t => {
-  document.getElementById('emoji-'  + t).textContent = emoji;
-  document.getElementById('name-'   + t).innerHTML   = nameHTML(t);
-  document.getElementById('desc-'   + t).textContent = desc;
+  document.getElementById('emoji-' + t).textContent = emoji;
+  document.getElementById('name-'  + t).innerHTML   = nameHTML(t);
+  document.getElementById('desc-'  + t).textContent = desc;
 });
 
 // ── Card switching ──
@@ -300,43 +297,180 @@ function switchCard(type, tab) {
   document.getElementById('card-' + type).classList.add('active');
 }
 
-// ── Download card as image ──
+// ── Draw card on Canvas (works on all browsers incl. iOS Safari) ──
+function drawCard(type) {
+  const SIZE = 1080;
+  const cv   = document.createElement('canvas');
+  cv.width   = SIZE;
+  cv.height  = SIZE;
+  const ctx  = cv.getContext('2d');
+  ctx.textBaseline = 'top';
+
+  const themes = {
+    dark:   { bg:'#0A0A0A', card:'#111',  text:'#fff',       sub:'rgba(255,255,255,0.85)', accent:'#F0C93A', border:'rgba(255,255,255,0.1)', url:'rgba(255,255,255,0.3)' },
+    light:  { bg:'#FAFAF8', card:'#fff',  text:'#1a1a1a',    sub:'#3a3a3a',               accent:'#F0C93A', border:'#1a1a1a',               url:'#b0b0a8' },
+    yellow: { bg:'#F0C93A', card:'#F0C93A',text:'#1a1a1a',   sub:'rgba(26,26,26,0.75)',   accent:'#1a1a1a', border:'rgba(26,26,26,0.2)',    url:'rgba(26,26,26,0.4)' }
+  };
+  const th = themes[type];
+  const font = 'IBM Plex Sans Arabic, Arial, sans-serif';
+
+  // Background
+  ctx.fillStyle = th.bg;
+  ctx.fillRect(0, 0, SIZE, SIZE);
+
+  // Card rect with rounded corners
+  const PAD = 64, R = 40;
+  const cw = SIZE - PAD*2, ch = SIZE - PAD*2;
+  ctx.fillStyle = th.card;
+  ctx.strokeStyle = th.border;
+  ctx.lineWidth = type === 'light' ? 3 : 1.5;
+  ctx.beginPath();
+  ctx.moveTo(PAD + R, PAD);
+  ctx.lineTo(PAD + cw - R, PAD);
+  ctx.arcTo(PAD+cw, PAD, PAD+cw, PAD+R, R);
+  ctx.lineTo(PAD+cw, PAD+ch-R);
+  ctx.arcTo(PAD+cw, PAD+ch, PAD+cw-R, PAD+ch, R);
+  ctx.lineTo(PAD+R, PAD+ch);
+  ctx.arcTo(PAD, PAD+ch, PAD, PAD+ch-R, R);
+  ctx.lineTo(PAD, PAD+R);
+  ctx.arcTo(PAD, PAD, PAD+R, PAD, R);
+  ctx.closePath();
+  ctx.fill();
+  ctx.stroke();
+
+  // Inner padding
+  const IX = PAD + 60, IW = cw - 120;
+  let Y = PAD + 72;
+
+  // Badge
+  ctx.font = 'bold 26px ' + font;
+  ctx.fillStyle = th.accent;
+  ctx.textAlign = 'right';
+  ctx.direction = 'rtl';
+  ctx.fillText('🎭 شخصيتك المهنية', IX + IW, Y);
+  Y += 52;
+
+  // Emoji
+  ctx.font = '90px Arial';
+  ctx.textAlign = 'right';
+  ctx.fillText(emoji, IX + IW, Y);
+  Y += 110;
+
+  // Archetype name — large
+  ctx.font = 'bold 74px ' + font;
+  ctx.fillStyle = th.text;
+  ctx.textAlign = 'right';
+  ctx.direction = 'rtl';
+
+  // Wrap long archetype name
+  const words = archetype.split(' ');
+  let line = '', lineY = Y;
+  for (let i = 0; i < words.length; i++) {
+    const test = words[i] + (line ? ' ' + line : '');
+    if (ctx.measureText(test).width > IW && line) {
+      ctx.fillText(line, IX + IW, lineY);
+      line = words[i];
+      lineY += 90;
+    } else {
+      line = test;
+    }
+  }
+  ctx.fillText(line, IX + IW, lineY);
+  Y = lineY + 104;
+
+  // Divider
+  ctx.strokeStyle = th.border;
+  ctx.lineWidth = type === 'light' ? 2.5 : 1;
+  ctx.beginPath();
+  ctx.moveTo(IX, Y); ctx.lineTo(IX + IW, Y);
+  ctx.stroke();
+  Y += 40;
+
+  // Description — wrapped text
+  ctx.font = '30px ' + font;
+  ctx.fillStyle = th.sub;
+  ctx.textAlign = 'right';
+  ctx.direction = 'rtl';
+  const maxW = IW;
+  const dWords = desc.split(' ');
+  let dLine = '', dY = Y;
+  for (let i = 0; i < dWords.length; i++) {
+    const test = dWords[i] + (dLine ? ' ' + dLine : '');
+    if (ctx.measureText(test).width > maxW && dLine) {
+      ctx.fillText(dLine, IX + IW, dY);
+      dLine = dWords[i];
+      dY += 46;
+      if (dY > PAD + ch - 120) { ctx.fillText('...', IX + IW, dY); break; }
+    } else {
+      dLine = test;
+    }
+  }
+  if (dLine) ctx.fillText(dLine, IX + IW, dY);
+
+  // Footer — logo + URL
+  const FY = PAD + ch - 72;
+  ctx.font = 'bold 28px ' + font;
+  ctx.fillStyle = th.text;
+  ctx.textAlign = 'right';
+  ctx.fillText('شيًك', IX + IW, FY + 6);
+
+  ctx.font = '24px ' + font;
+  ctx.fillStyle = th.url;
+  ctx.textAlign = 'left';
+  ctx.direction = 'ltr';
+  ctx.fillText('cheekcv.xyz', IX, FY + 10);
+
+  return cv;
+}
+
+// ── Save / Share image ──
 async function downloadCard() {
   const btn = document.querySelector('.btn-screenshot');
-  btn.textContent = '⏳ جاري التحويل...';
+  btn.textContent = '⏳ جاري...';
   btn.disabled = true;
+
   try {
-    const el = document.getElementById('card-' + activeCard);
-    const canvas = await html2canvas(el, {
-      scale: 3,
-      useCORS: true,
-      backgroundColor: null,
-      logging: false
-    });
-    const link = document.createElement('a');
-    link.download = 'شخصيتي-' + archetype.replace(/\s+/g,'-') + '.png';
-    link.href = canvas.toDataURL('image/png');
-    link.click();
+    const cv = drawCard(activeCard);
+    const filename = 'cheekcv-' + archetype.replace(/\s+/g, '-') + '.png';
+
+    // iOS Safari: use navigator.share with blob if available
+    if (navigator.share && navigator.canShare) {
+      cv.toBlob(async blob => {
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'شخصيتي المهنية: ' + archetype });
+        } else {
+          fallbackDownload(cv, filename);
+        }
+      }, 'image/png');
+    } else {
+      fallbackDownload(cv, filename);
+    }
   } catch(e) {
-    alert('تعذّر حفظ الصورة، جرب من متصفح آخر');
+    console.error(e);
   }
+
   btn.innerHTML = '📸 احفظ ككارد';
   btn.disabled = false;
 }
 
-// ── Share on X ──
+function fallbackDownload(cv, filename) {
+  const link = document.createElement('a');
+  link.download = filename;
+  link.href = cv.toDataURL('image/png');
+  link.click();
+}
+
 function shareX() {
   const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
   window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
 }
 
-// ── Share on WhatsApp ──
 function shareWA() {
   const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
   window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
 }
 
-// ── TikTok ──
 function shareTT() {
   downloadCard();
 }
