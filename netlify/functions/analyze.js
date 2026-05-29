@@ -263,12 +263,20 @@ ${cv}
 
     const details = toolUse2.input;
 
+    // Safety defaults for any missing arrays
+    details.cv_insights = details.cv_insights || [];
+    details.career_paths = details.career_paths || [];
+    details.courses = details.courses || [];
+    details.market_cards = details.market_cards || [];
+    details.recommendations = details.recommendations || [];
+    details.jobs = details.jobs || [];
+
     // Add icons to insights
     const insightIcons = ['📈', '🏢', '⚡', '🎯'];
-    details.cv_insights = details.cv_insights.map((i, idx) => ({ ...i, icon: insightIcons[idx] }));
+    details.cv_insights = details.cv_insights.map((i, idx) => ({ ...i, icon: insightIcons[idx] || '📊' }));
 
     const pathIcons = ['🏗️', '🎯', '🚀'];
-    details.career_paths = details.career_paths.map((p, idx) => ({ ...p, icon: pathIcons[idx] }));
+    details.career_paths = details.career_paths.map((p, idx) => ({ ...p, icon: pathIcons[idx] || '🎯' }));
 
     details.courses = details.courses.map((c, idx) => ({ ...c, num: String(idx + 1).padStart(2, '0') }));
 
