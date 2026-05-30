@@ -290,7 +290,7 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
       <div class="peek-divider"></div>
 
       <div class="peek-section">
-        <div class="peek-section-title">🚨 أكبر خطأ في سيرتك</div>
+        <div class="peek-section-title">🚨 أكبر أخطائك المهنية</div>
         <div class="peek-items" id="peekWeaknesses"></div>
       </div>
 
@@ -299,6 +299,20 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
       <div class="peek-section">
         <div class="peek-section-title">💰 الراتب اللي تستاهله</div>
         <div class="peek-items" id="peekJobs"></div>
+      </div>
+
+      <div class="peek-divider"></div>
+
+      <div class="peek-section">
+        <div class="peek-section-title">🎯 توصيات التطوير لك</div>
+        <div class="peek-items" id="peekRecs"></div>
+      </div>
+
+      <div class="peek-divider"></div>
+
+      <div class="peek-section">
+        <div class="peek-section-title">🔮 مسارك المهني المقترح</div>
+        <div class="peek-items" id="peekPaths"></div>
       </div>
 
       <!-- Blur overlay -->
@@ -386,6 +400,14 @@ if (D && D.archetype) {
   if (D.jobs && D.jobs.length) {
     document.getElementById('peekJobs').innerHTML =
       D.jobs.slice(0, 2).map(j => `<div class="peek-item">💼 ${j.title} — ${j.salary}</div>`).join('');
+  }
+  if (D.recommendations && D.recommendations.length) {
+    document.getElementById('peekRecs').innerHTML =
+      D.recommendations.slice(0, 2).map(r => `<div class="peek-item">🎯 ${r.title||''}</div>`).join('');
+  }
+  if (D.career_paths && D.career_paths.length) {
+    document.getElementById('peekPaths').innerHTML =
+      D.career_paths.slice(0, 2).map(p => `<div class="peek-item">🔮 ${p.title||''} — توافق ${p.match||0}%</div>`).join('');
   }
   const nameParts = D.archetype.split(' ');
   const lastWord = nameParts.pop();

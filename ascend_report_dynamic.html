@@ -202,24 +202,28 @@ const insightsHtml = `<div class="cv-insights">${(d.cv_insights||[]).map(i=>`<di
 main.innerHTML += section('03','تحليل السيرة الذاتية', statsHtml + insightsHtml);
 
 // 04 Recommendations
-const recsHtml = `<div class="rec-list">${(d.recommendations||[]).map((r,i)=>`<div class="rec-item"><div class="rec-num">${i+1}</div><div><div class="rec-title">${r.title}</div><div class="rec-desc">${r.desc}</div></div></div>`).join('')}</div>`;
+const recsHtml = `<div class="rec-list">${(d.recommendations||[]).map((r,i)=>`<div class="rec-item"><div class="rec-num">${i+1}</div><div><div class="rec-title">${r.title||''}</div><div class="rec-desc">${r.desc||r.description||''}</div></div></div>`).join('')}</div>`;
 main.innerHTML += section('04','توصيات التطوير', recsHtml);
 
 // 05 Career Paths
-const pathsHtml = `<div class="paths-list">${(d.career_paths||[]).map(p=>`<div class="path-item"><div class="path-icon-box">${p.icon}</div><div><div class="path-title">${p.title}</div><div class="path-desc">${p.desc}</div><span class="path-badge">توافق ${p.match}%</span></div></div>`).join('')}</div>`;
+const pathsHtml = `<div class="paths-list">${(d.career_paths||[]).map(p=>`<div class="path-item"><div class="path-icon-box">${p.icon||'🎯'}</div><div><div class="path-title">${p.title||''}</div><div class="path-desc">${p.desc||p.description||''}</div><span class="path-badge">توافق ${p.match||0}%</span></div></div>`).join('')}</div>`;
 main.innerHTML += section('05','المسارات المهنية المناسبة', pathsHtml);
 
 // 06 Courses
-const coursesHtml = `<div class="courses-list">${(d.courses||[]).map(c=>`<div class="course-item"><div class="course-header"><div class="course-num">${c.num}</div><div class="course-title">${c.title}</div></div><div class="course-reason">${c.reason}</div></div>`).join('')}</div>`;
+const coursesHtml = `<div class="courses-list">${(d.courses||[]).map(c=>`<div class="course-item"><div class="course-header"><div class="course-num">${c.num||''}</div><div class="course-title">${c.title||''}</div></div><div class="course-reason">${c.reason||''}</div></div>`).join('')}</div>`;
 main.innerHTML += section('06','الدورات الموصى بها', coursesHtml);
 
 // 07 Market
-const marketHtml = `<div class="market-grid">${(d.market_cards||[]).map(m=>`<div class="market-card"><div class="market-label">${m.label}</div><div class="market-value">${m.text}</div>${m.has_bar?`<div class="demand-bar"><div class="demand-fill" style="--fill:${m.bar_pct}%"></div></div>`:''}</div>`).join('')}</div>`;
-main.innerHTML += section('07','تقييم السوق', marketHtml);
+if ((d.market_cards||[]).length > 0) {
+  const marketHtml = `<div class="market-grid">${d.market_cards.map(m=>`<div class="market-card"><div class="market-label">${m.label||''}</div><div class="market-value">${m.text||''}</div>${m.has_bar?`<div class="demand-bar"><div class="demand-fill" style="--fill:${m.bar_pct||0}%"></div></div>`:''}</div>`).join('')}</div>`;
+  main.innerHTML += section('07','تقييم السوق', marketHtml);
+}
 
 // 08 Jobs
-const jobsHtml = `<div class="jobs-list">${(d.jobs||[]).map(j=>`<div class="job-item"><div><div class="job-title">${j.title}</div><div class="job-reason">${j.reason}</div></div><div class="job-salary">${j.salary}</div></div>`).join('')}</div>`;
-main.innerHTML += section('08','الوظائف التي يمكنك الوصول إليها', jobsHtml);
+if ((d.jobs||[]).length > 0) {
+  const jobsHtml = `<div class="jobs-list">${d.jobs.map(j=>`<div class="job-item"><div><div class="job-title">${j.title||''}</div><div class="job-reason">${j.reason||''}</div></div><div class="job-salary">${j.salary||''}</div></div>`).join('')}</div>`;
+  main.innerHTML += section('08','الوظائف التي يمكنك الوصول إليها', jobsHtml);
+}
 </script>
 </body>
 </html>
