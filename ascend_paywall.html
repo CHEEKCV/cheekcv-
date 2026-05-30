@@ -400,6 +400,29 @@ if (D && D.archetype) {
     '<div class="score-item"><span class="score-num">' + (D.market_demand||'—') + '%</span><span class="score-label">الطلب في السوق</span></div>' +
     '<div class="score-item"><span class="score-num">' + trend + '</span><span class="score-label">اتجاه المسيرة</span></div>';
 }
+
+// ── Listen for Gumroad purchase completion ──
+window.addEventListener('message', function(e) {
+  if (e.origin.indexOf('gumroad.com') === -1) return;
+  try {
+    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
+    if (data && (data.type === 'purchase' || data.post_url || data.sale_id)) {
+      // Purchase completed — go to report
+      window.location.href = 'ascend_thankyou.html';
+    }
+  } catch(err) {}
+});
+
+// Fallback: poll for overlay close after payment
+// Gumroad adds ?sale_id= to URL on some flows
+(function checkSaleId() {
+  if (window.location.search.indexOf('sale_id') !== -1 ||
+      window.location.search.indexOf('purchase') !== -1) {
+    window.location.href = 'ascend_thankyou.html';
+    return;
+  }
+  setTimeout(checkSaleId, 1000);
+})();
 </script>
 </body>
 </html>
