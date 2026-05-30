@@ -50,10 +50,22 @@ nav{width:100%;background:var(--white);border-bottom:2px solid var(--black);padd
 }
 .hero-sub{
   font-size:15px;color:#555;line-height:1.8;
-  margin-bottom:32px;max-width:480px;
+  margin-bottom:16px;max-width:420px;
   margin-right:auto;margin-left:auto;
   font-weight:400;
 }
+.read-more-btn{
+  display:inline-block;
+  margin-bottom:28px;
+  background:var(--black);color:var(--yellow);
+  border:2px solid var(--black);border-radius:12px;
+  padding:13px 26px;font-size:14px;font-weight:800;
+  font-family:'IBM Plex Sans Arabic',-apple-system,sans-serif;
+  text-decoration:none;cursor:pointer;
+  box-shadow:3px 3px 0 var(--yellow);
+  transition:all .15s;
+}
+.read-more-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--yellow);}
 .score-strip{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
 .score-item{
   background:var(--bg);border:2px solid var(--black);
@@ -203,6 +215,7 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
   <div class="archetype-badge">🎭 شخصيتك المهنية</div>
   <h1 class="hero-name" id="heroName">جاري التحميل...</h1>
   <p class="hero-sub" id="heroSub"></p>
+  <a class="read-more-btn" href="https://cheekcv.gumroad.com/l/cheekcv">أكمل قراءة التقرير واكتشف ما لا تعرفه عن نفسك 🔓</a>
   <div class="score-strip" id="scoreStrip">
     <div class="score-item"><span class="score-num">—</span><span class="score-label">سنوات خبرة</span></div>
     <div class="score-item"><span class="score-num">—</span><span class="score-label">شركات</span></div>
@@ -284,7 +297,9 @@ if (D && D.archetype) {
   const nameParts = D.archetype.split(' ');
   const lastWord = nameParts.pop();
   document.getElementById('heroName').innerHTML = nameParts.join(' ') + ' <span>' + lastWord + '</span>';
-  document.getElementById('heroSub').textContent = D.description ? D.description.split('\n')[0] : (D.market_view || '');
+  const fullDesc = D.description ? D.description.split('\n')[0] : (D.market_view || '');
+  const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120).trimEnd() + '...' : fullDesc;
+  document.getElementById('heroSub').textContent = shortDesc;
   const trend = D.career_trend === 'صاعد' ? '↗' : D.career_trend === 'نازل' ? '↘' : '→';
   document.getElementById('scoreStrip').innerHTML =
     '<div class="score-item"><span class="score-num">' + (D.years_experience||'—') + '+</span><span class="score-label">سنوات خبرة</span></div>' +
