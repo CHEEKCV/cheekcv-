@@ -322,128 +322,136 @@ function switchCard(type, tab) {
   document.getElementById('card-' + type).classList.add('active');
 }
 
-// ── Draw card on Canvas (works on all browsers incl. iOS Safari) ──
-function drawCard(type) {
+// ── RTL-safe word wrap helper ──
+function wrapText(ctx, text, maxW) {
+  const words = text.split(' ');
+  const lines = [];
+  let line = '';
+  for (const word of words) {
+    const test = line ? line + ' ' + word : word;
+    if (ctx.measureText(test).width > maxW && line) {
+      lines.push(line);
+      line = word;
+    } else {
+      line = test;
+    }
+  }
+  if (line) lines.push(line);
+  return lines;
+}
+
+// ── Draw card on Canvas ──
+async function drawCard(type) {
+  // Wait for Arabic font before drawing
+  await document.fonts.load('bold 72px "IBM Plex Sans Arabic"');
+  await document.fonts.load('32px "IBM Plex Sans Arabic"');
+
   const SIZE = 1080;
   const cv   = document.createElement('canvas');
   cv.width   = SIZE;
   cv.height  = SIZE;
   const ctx  = cv.getContext('2d');
+
+  // Always RTL
+  ctx.direction    = 'rtl';
   ctx.textBaseline = 'top';
+  ctx.textAlign    = 'right';
+
+  const FONT = '"IBM Plex Sans Arabic", Arial, sans-serif';
 
   const themes = {
-    dark:   { bg:'#0A0A0A', card:'#111',  text:'#fff',       sub:'rgba(255,255,255,0.85)', accent:'#F0C93A', border:'rgba(255,255,255,0.1)', url:'rgba(255,255,255,0.3)' },
-    light:  { bg:'#FAFAF8', card:'#fff',  text:'#1a1a1a',    sub:'#3a3a3a',               accent:'#F0C93A', border:'#1a1a1a',               url:'#b0b0a8' },
-    yellow: { bg:'#F0C93A', card:'#F0C93A',text:'#1a1a1a',   sub:'rgba(26,26,26,0.75)',   accent:'#1a1a1a', border:'rgba(26,26,26,0.2)',    url:'rgba(26,26,26,0.4)' }
+    dark:   { bg:'#0A0A0A', card:'#111111', text:'#FFFFFF', sub:'rgba(255,255,255,0.8)', accent:'#F0C93A', divider:'rgba(255,255,255,0.12)', url:'rgba(255,255,255,0.28)' },
+    light:  { bg:'#F2F2EE', card:'#FFFFFF', text:'#1a1a1a', sub:'#444444',              accent:'#D4A800', divider:'#D0D0C8',                url:'#A0A098' },
+    yellow: { bg:'#E8B800', card:'#F0C93A', text:'#1a1a1a', sub:'rgba(0,0,0,0.62)',     accent:'#1a1a1a', divider:'rgba(0,0,0,0.18)',        url:'rgba(0,0,0,0.38)' }
   };
-  const th = themes[type];
-  const font = 'IBM Plex Sans Arabic, Arial, sans-serif';
+  const th  = themes[type];
+  const PAD = 72;   // outer margin
+  const IP  = 68;   // inner padding inside card
+  const R   = 44;   // corner radius
 
-  // Background
+  // ── Background ──
   ctx.fillStyle = th.bg;
   ctx.fillRect(0, 0, SIZE, SIZE);
 
-  // Card rect with rounded corners
-  const PAD = 64, R = 40;
-  const cw = SIZE - PAD*2, ch = SIZE - PAD*2;
+  // ── Card shape ──
+  const cx = PAD, cy = PAD, cw = SIZE - PAD*2, ch = SIZE - PAD*2;
   ctx.fillStyle = th.card;
-  ctx.strokeStyle = th.border;
-  ctx.lineWidth = type === 'light' ? 3 : 1.5;
   ctx.beginPath();
-  ctx.moveTo(PAD + R, PAD);
-  ctx.lineTo(PAD + cw - R, PAD);
-  ctx.arcTo(PAD+cw, PAD, PAD+cw, PAD+R, R);
-  ctx.lineTo(PAD+cw, PAD+ch-R);
-  ctx.arcTo(PAD+cw, PAD+ch, PAD+cw-R, PAD+ch, R);
-  ctx.lineTo(PAD+R, PAD+ch);
-  ctx.arcTo(PAD, PAD+ch, PAD, PAD+ch-R, R);
-  ctx.lineTo(PAD, PAD+R);
-  ctx.arcTo(PAD, PAD, PAD+R, PAD, R);
+  ctx.moveTo(cx+R, cy);
+  ctx.lineTo(cx+cw-R, cy);  ctx.arcTo(cx+cw, cy,    cx+cw, cy+R,    R);
+  ctx.lineTo(cx+cw, cy+ch-R); ctx.arcTo(cx+cw, cy+ch, cx+cw-R, cy+ch, R);
+  ctx.lineTo(cx+R,  cy+ch); ctx.arcTo(cx,    cy+ch, cx,    cy+ch-R, R);
+  ctx.lineTo(cx,    cy+R);  ctx.arcTo(cx,    cy,    cx+R,  cy,      R);
   ctx.closePath();
   ctx.fill();
-  ctx.stroke();
 
-  // Inner padding
-  const IX = PAD + 60, IW = cw - 120;
-  let Y = PAD + 72;
+  // Card border (light only)
+  if (type === 'light') {
+    ctx.strokeStyle = '#1a1a1a';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
 
-  // Badge
-  ctx.font = 'bold 26px ' + font;
+  // Working area
+  const TX = cx + cw - IP;   // right anchor (RTL)
+  const TL = cx + IP;        // left edge
+  const TW = cw - IP * 2;    // text max width
+  let Y = cy + IP;
+
+  // ── Badge ──
+  ctx.font = `600 27px ${FONT}`;
   ctx.fillStyle = th.accent;
-  ctx.textAlign = 'right';
-  ctx.direction = 'rtl';
-  ctx.fillText('🎭 شخصيتك المهنية', IX + IW, Y);
-  Y += 52;
+  ctx.fillText('🎭  شخصيتك المهنية', TX, Y);
+  Y += 56;
 
-  // Emoji
-  ctx.font = '90px Arial';
-  ctx.textAlign = 'right';
-  ctx.fillText(emoji, IX + IW, Y);
-  Y += 110;
+  // ── Emoji ──
+  ctx.font = `88px Arial`;
+  ctx.fillText(emoji, TX, Y);
+  Y += 108;
 
-  // Archetype name — large
-  ctx.font = 'bold 74px ' + font;
+  // ── Archetype name (large, wrapped) ──
+  ctx.font = `800 72px ${FONT}`;
   ctx.fillStyle = th.text;
-  ctx.textAlign = 'right';
-  ctx.direction = 'rtl';
-
-  // Wrap long archetype name
-  const words = archetype.split(' ');
-  let line = '', lineY = Y;
-  for (let i = 0; i < words.length; i++) {
-    const test = words[i] + (line ? ' ' + line : '');
-    if (ctx.measureText(test).width > IW && line) {
-      ctx.fillText(line, IX + IW, lineY);
-      line = words[i];
-      lineY += 90;
-    } else {
-      line = test;
-    }
+  const nameLines = wrapText(ctx, archetype, TW);
+  for (const l of nameLines) {
+    ctx.fillText(l, TX, Y);
+    Y += 86;
   }
-  ctx.fillText(line, IX + IW, lineY);
-  Y = lineY + 104;
+  Y += 14;
 
-  // Divider
-  ctx.strokeStyle = th.border;
-  ctx.lineWidth = type === 'light' ? 2.5 : 1;
+  // ── Divider ──
+  ctx.strokeStyle = th.divider;
+  ctx.lineWidth   = 2;
   ctx.beginPath();
-  ctx.moveTo(IX, Y); ctx.lineTo(IX + IW, Y);
+  ctx.moveTo(TL, Y); ctx.lineTo(TX, Y);
   ctx.stroke();
-  Y += 40;
+  Y += 44;
 
-  // Description — wrapped text
-  ctx.font = '30px ' + font;
+  // ── Teaser desc (wrapped, max 4 lines) ──
+  ctx.font = `400 30px ${FONT}`;
   ctx.fillStyle = th.sub;
-  ctx.textAlign = 'right';
-  ctx.direction = 'rtl';
-  const maxW = IW;
-  const dWords = desc.split(' ');
-  let dLine = '', dY = Y;
-  for (let i = 0; i < dWords.length; i++) {
-    const test = dWords[i] + (dLine ? ' ' + dLine : '');
-    if (ctx.measureText(test).width > maxW && dLine) {
-      ctx.fillText(dLine, IX + IW, dY);
-      dLine = dWords[i];
-      dY += 46;
-      if (dY > PAD + ch - 120) { ctx.fillText('...', IX + IW, dY); break; }
-    } else {
-      dLine = test;
-    }
+  const dLines = wrapText(ctx, desc, TW).slice(0, 4);
+  for (const l of dLines) {
+    ctx.fillText(l, TX, Y);
+    Y += 46;
   }
-  if (dLine) ctx.fillText(dLine, IX + IW, dY);
 
-  // Footer — logo + URL
-  const FY = PAD + ch - 72;
-  ctx.font = 'bold 28px ' + font;
-  ctx.fillStyle = th.text;
-  ctx.textAlign = 'right';
-  ctx.fillText('شيًك', IX + IW, FY + 6);
+  // ── Footer ──
+  const FY = cy + ch - IP - 32;
 
-  ctx.font = '24px ' + font;
-  ctx.fillStyle = th.url;
-  ctx.textAlign = 'left';
+  // URL (LTR) — left side
   ctx.direction = 'ltr';
-  ctx.fillText('cheekcv.xyz', IX, FY + 10);
+  ctx.textAlign = 'left';
+  ctx.font      = `400 26px ${FONT}`;
+  ctx.fillStyle = th.url;
+  ctx.fillText('cheekcv.xyz', TL, FY + 4);
+
+  // Brand name — right side
+  ctx.direction = 'rtl';
+  ctx.textAlign = 'right';
+  ctx.font      = `800 28px ${FONT}`;
+  ctx.fillStyle = th.text;
+  ctx.fillText('شيًك', TX, FY);
 
   return cv;
 }
@@ -454,7 +462,7 @@ async function shareCard() {
   btn.textContent = '⏳ جاري التحضير...';
   btn.disabled = true;
 
-  const cv       = drawCard(activeCard);
+  const cv       = await drawCard(activeCard);
   const filename = 'cheekcv-' + archetype.replace(/\s+/g, '-') + '.png';
   const shareText = 'شخصيتي المهنية - ' + archetype + ' ' + emoji + '\nاكتشف شخصيتك المهنية: cheekcv.xyz';
 
