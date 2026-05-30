@@ -142,7 +142,7 @@ exports.handler = async (event) => {
   await store.setJSON(jobId, { status: 'processing' });
 
   try {
-    const cv = cvText.substring(0, 2500);
+    const cv = cvText.substring(0, 4000);
     const archetypesList = Object.entries(ARCHETYPES).map(([id, a]) => `${id}: ${a.name}`).join('\n');
 
     const response = await httpsPost({
