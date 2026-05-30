@@ -66,12 +66,12 @@ nav{width:100%;background:var(--white);border-bottom:2px solid var(--black);padd
   transition:all .15s;
 }
 .read-more-btn:active{transform:translate(2px,2px);box-shadow:1px 1px 0 var(--yellow);}
-.score-strip{display:flex;gap:12px;flex-wrap:wrap;justify-content:center;}
+.score-strip{display:flex;gap:8px;flex-wrap:nowrap;justify-content:center;}
 .score-item{
   background:var(--bg);border:2px solid var(--black);
-  border-radius:12px;padding:14px 22px;
-  box-shadow:3px 3px 0 var(--black);
-  text-align:center;min-width:90px;
+  border-radius:12px;padding:12px 0;
+  box-shadow:2px 2px 0 var(--black);
+  text-align:center;flex:1;min-width:0;
 }
 .score-num{display:block;font-size:24px;font-weight:800;color:var(--black);}
 .score-label{display:block;font-size:10px;color:var(--muted);margin-top:3px;font-weight:600;}
@@ -298,7 +298,7 @@ if (D && D.archetype) {
   const lastWord = nameParts.pop();
   document.getElementById('heroName').innerHTML = nameParts.join(' ') + ' <span>' + lastWord + '</span>';
   const fullDesc = D.description ? D.description.split('\n')[0] : (D.market_view || '');
-  const shortDesc = fullDesc.length > 120 ? fullDesc.substring(0, 120).trimEnd() + '...' : fullDesc;
+  const shortDesc = fullDesc.length > 200 ? fullDesc.substring(0, 200).trimEnd() + '...' : fullDesc;
   document.getElementById('heroSub').textContent = shortDesc;
   const trend = D.career_trend === 'صاعد' ? '↗' : D.career_trend === 'نازل' ? '↘' : '→';
   document.getElementById('scoreStrip').innerHTML =
