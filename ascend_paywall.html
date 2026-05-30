@@ -95,6 +95,44 @@ nav{width:100%;background:var(--white);border-bottom:2px solid var(--black);padd
   white-space:nowrap;transition:all .15s;
 }
 
+/* PEEK */
+.peek-wrap{margin-bottom:0;}
+.peek-label{font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.5px;text-align:center;margin-bottom:12px;}
+.peek-card{
+  background:var(--white);border:2px solid var(--black);
+  border-radius:16px;padding:22px 20px;
+  position:relative;overflow:hidden;
+}
+.peek-section{margin-bottom:14px;}
+.peek-section:last-of-type{margin-bottom:0;}
+.peek-section-title{font-size:12px;font-weight:800;color:var(--black);margin-bottom:10px;letter-spacing:.3px;}
+.peek-items{display:flex;flex-direction:column;gap:7px;}
+.peek-item{
+  font-size:13px;color:#444;line-height:1.5;
+  background:var(--bg);border-radius:8px;padding:8px 12px;
+  filter:blur(4px);user-select:none;pointer-events:none;
+}
+.peek-divider{height:1px;background:#e8e8e4;margin:14px 0;}
+/* Fade at bottom */
+.peek-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;
+  height:55%;
+  background:linear-gradient(to bottom,transparent,var(--white) 85%);
+  pointer-events:none;
+}
+/* Blur overlay centered */
+.peek-blur{
+  position:absolute;bottom:0;left:0;right:0;
+  height:60%;
+  display:flex;align-items:flex-end;justify-content:center;
+  padding-bottom:20px;
+  z-index:2;
+}
+.peek-blur-content{text-align:center;}
+.peek-lock{font-size:28px;margin-bottom:6px;}
+.peek-blur-txt{font-size:15px;font-weight:800;color:var(--black);margin-bottom:4px;}
+.peek-blur-sub{font-size:12px;color:var(--muted);font-weight:600;}
+
 /* LOCK OVERLAP */
 .lock-overlap{
   display:flex;justify-content:center;
@@ -234,6 +272,42 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
     </button>
   </div>
 
+  <!-- PEEK SECTION -->
+  <div class="peek-wrap">
+    <div class="peek-label">👇 لمحة من تقريرك الشخصي</div>
+    <div class="peek-card" id="peekCard">
+
+      <div class="peek-section">
+        <div class="peek-section-title">⚡ نقاط قوتك الخفية</div>
+        <div class="peek-items" id="peekStrengths"></div>
+      </div>
+
+      <div class="peek-divider"></div>
+
+      <div class="peek-section">
+        <div class="peek-section-title">🚨 أكبر خطأ في سيرتك</div>
+        <div class="peek-items" id="peekWeaknesses"></div>
+      </div>
+
+      <div class="peek-divider"></div>
+
+      <div class="peek-section">
+        <div class="peek-section-title">💰 الراتب اللي تستاهله</div>
+        <div class="peek-items" id="peekJobs"></div>
+      </div>
+
+      <!-- Blur overlay -->
+      <div class="peek-blur">
+        <div class="peek-blur-content">
+          <div class="peek-lock">🔒</div>
+          <div class="peek-blur-txt">هذا التقرير عنك أنت</div>
+          <div class="peek-blur-sub">افتحه كاملاً وشوف الحقيقة</div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
   <!-- LOCK OVERLAP -->
   <div class="lock-overlap">
     <div class="lock-circle">🔒</div>
@@ -294,6 +368,20 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
 <script>
 const D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
 if (D && D.archetype) {
+
+  // ── Peek section — real data, blurred ──
+  if (D.strengths && D.strengths.length) {
+    document.getElementById('peekStrengths').innerHTML =
+      D.strengths.slice(0, 3).map(s => `<div class="peek-item">✓ ${s}</div>`).join('');
+  }
+  if (D.weaknesses && D.weaknesses.length) {
+    document.getElementById('peekWeaknesses').innerHTML =
+      D.weaknesses.slice(0, 2).map(w => `<div class="peek-item">⚠️ ${w}</div>`).join('');
+  }
+  if (D.jobs && D.jobs.length) {
+    document.getElementById('peekJobs').innerHTML =
+      D.jobs.slice(0, 2).map(j => `<div class="peek-item">💼 ${j.title} — ${j.salary}</div>`).join('');
+  }
   const nameParts = D.archetype.split(' ');
   const lastWord = nameParts.pop();
   document.getElementById('heroName').innerHTML = nameParts.join(' ') + ' <span>' + lastWord + '</span>';
