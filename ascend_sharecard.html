@@ -231,20 +231,10 @@ footer{border-top:2px solid #1a1a1a;background:#fff;padding:14px 20px;display:fl
     </div>
   </div>
 
-  <!-- SHARE BTNS -->
+  <!-- SHARE BTN -->
   <div class="share-btns">
-    <button class="share-btn btn-screenshot" onclick="downloadCard()">
-      📸 احفظ ككارد
-    </button>
-    <button class="share-btn btn-x" onclick="shareX()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.748l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.911-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-      شارك على X
-    </button>
-    <button class="share-btn btn-wa" onclick="shareWA()">
-      💬 شارك على واتساب
-    </button>
-    <button class="share-btn btn-tt" onclick="shareTT()">
-      🎵 شارك على TikTok
+    <button class="share-btn btn-screenshot" id="shareBtn" onclick="shareCard()">
+      🚀 شارك بطاقتك
     </button>
   </div>
 
@@ -458,35 +448,42 @@ function drawCard(type) {
   return cv;
 }
 
-// ── Save / Share image ──
-async function downloadCard() {
-  const btn = document.querySelector('.btn-screenshot');
-  btn.textContent = '⏳ جاري...';
+// ── Single share button ──
+async function shareCard() {
+  const btn = document.getElementById('shareBtn');
+  btn.textContent = '⏳ جاري التحضير...';
   btn.disabled = true;
 
-  try {
-    const cv = drawCard(activeCard);
-    const filename = 'cheekcv-' + archetype.replace(/\s+/g, '-') + '.png';
+  const cv       = drawCard(activeCard);
+  const filename = 'cheekcv-' + archetype.replace(/\s+/g, '-') + '.png';
+  const shareText = 'شخصيتي المهنية - ' + archetype + ' ' + emoji + '\nاكتشف شخصيتك المهنية: cheekcv.xyz';
 
-    // iOS Safari: use navigator.share with blob if available
-    if (navigator.share && navigator.canShare) {
-      cv.toBlob(async blob => {
-        const file = new File([blob], filename, { type: 'image/png' });
-        if (navigator.canShare({ files: [file] })) {
-          await navigator.share({ files: [file], title: 'شخصيتي المهنية: ' + archetype });
-        } else {
-          fallbackDownload(cv, filename);
-        }
-      }, 'image/png');
+  cv.toBlob(async blob => {
+    const file = new File([blob], filename, { type: 'image/png' });
+
+    // Native share sheet (iOS + Android) — includes image + text + url
+    if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+      try {
+        await navigator.share({
+          files: [file],
+          text:  shareText,
+          url:   'https://cheekcv.xyz'
+        });
+      } catch(e) {
+        if (e.name !== 'AbortError') fallbackDownload(cv, filename);
+      }
+
+    // Desktop fallback — download image + open share url in new tab
     } else {
       fallbackDownload(cv, filename);
+      setTimeout(() => {
+        window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(shareText), '_blank');
+      }, 800);
     }
-  } catch(e) {
-    console.error(e);
-  }
 
-  btn.innerHTML = '📸 احفظ ككارد';
-  btn.disabled = false;
+    btn.textContent = '🚀 شارك بطاقتك';
+    btn.disabled = false;
+  }, 'image/png');
 }
 
 function fallbackDownload(cv, filename) {
@@ -494,20 +491,6 @@ function fallbackDownload(cv, filename) {
   link.download = filename;
   link.href = cv.toDataURL('image/png');
   link.click();
-}
-
-function shareX() {
-  const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
-  window.open('https://twitter.com/intent/tweet?text=' + encodeURIComponent(text), '_blank');
-}
-
-function shareWA() {
-  const text = 'طلعت شخصيتي المهنية "' + archetype + '" على شيًك 👀\nاكتشف شخصيتك: cheekcv.xyz';
-  window.open('https://wa.me/?text=' + encodeURIComponent(text), '_blank');
-}
-
-function shareTT() {
-  downloadCard();
 }
 </script>
 </body>
