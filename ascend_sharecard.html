@@ -464,7 +464,7 @@ async function shareCard() {
 
   const cv       = await drawCard(activeCard);
   const filename = 'cheekcv-' + archetype.replace(/\s+/g, '-') + '.png';
-  const shareText = 'شخصيتي المهنية - ' + archetype + ' ' + emoji + '\nاكتشف شخصيتك المهنية: cheekcv.xyz';
+  const shareText = 'شخصيتي المهنية - ' + archetype + ' ' + emoji + '\nاكتشف شخصيتك المهنية: cheekcv.xyz\n\n#شيك #شخصيتك_المهنية #تطوير_مهني #وظائف_السعودية #سيرة_ذاتية';
 
   cv.toBlob(async blob => {
     const file = new File([blob], filename, { type: 'image/png' });
