@@ -236,6 +236,8 @@ nav{width:100%;background:var(--white);border-bottom:2px solid var(--black);padd
   margin-left:-7px;
 }
 .sp-av:first-child{margin-left:0;}
+.pay-methods{display:flex;gap:8px;justify-content:center;align-items:center;margin-bottom:20px;flex-wrap:wrap;}
+.pay-badge{display:flex;align-items:center;justify-content:center;border-radius:8px;overflow:hidden;}
 .privacy-note{font-size:13px;color:rgba(255,255,255,.7);display:flex;align-items:center;justify-content:center;gap:4px;font-weight:500;}
 
 /* FOOTER */
@@ -365,8 +367,47 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
         autocomplete="email" inputmode="email" />
     </div>
     <button class="pay-btn" id="payBtn" onclick="startPayment()">
-      افتح تقريرك 🔓
+      افتح تقريرك — $4.99 🔓
     </button>
+
+    <!-- Payment method logos -->
+    <div class="pay-methods">
+      <!-- Mada -->
+      <div class="pay-badge" style="background:#fff;padding:4px 10px;border-radius:8px;">
+        <svg width="44" height="22" viewBox="0 0 100 40" fill="none">
+          <rect width="100" height="40" rx="6" fill="#fff"/>
+          <text x="50" y="28" font-size="18" font-weight="800" fill="#0a5c36" text-anchor="middle" font-family="Arial">mada</text>
+        </svg>
+      </div>
+      <!-- Visa -->
+      <div class="pay-badge" style="background:#1A1F71;padding:4px 10px;border-radius:8px;">
+        <svg width="44" height="22" viewBox="0 0 100 40" fill="none">
+          <rect width="100" height="40" rx="6" fill="#1A1F71"/>
+          <text x="50" y="28" font-size="20" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial" font-style="italic">VISA</text>
+        </svg>
+      </div>
+      <!-- Mastercard -->
+      <div class="pay-badge" style="background:#252525;padding:4px 8px;border-radius:8px;">
+        <svg width="38" height="22" viewBox="0 0 60 40">
+          <circle cx="22" cy="20" r="14" fill="#EB001B"/>
+          <circle cx="38" cy="20" r="14" fill="#F79E1B"/>
+          <path d="M30 9.5a14 14 0 0 1 0 21 14 14 0 0 1 0-21z" fill="#FF5F00"/>
+        </svg>
+      </div>
+      <!-- Apple Pay -->
+      <div class="pay-badge" style="background:#000;padding:4px 10px;border-radius:8px;">
+        <svg width="44" height="22" viewBox="0 0 100 40" fill="none">
+          <text x="50" y="28" font-size="14" fill="#fff" text-anchor="middle" font-family="-apple-system,Arial" font-weight="600"> Pay</text>
+          <text x="26" y="26" font-size="18" fill="#fff" text-anchor="middle" font-family="-apple-system,Arial"></text>
+        </svg>
+      </div>
+      <!-- STC Pay -->
+      <div class="pay-badge" style="background:#6C2FA0;padding:4px 10px;border-radius:8px;">
+        <svg width="52" height="22" viewBox="0 0 110 40" fill="none">
+          <text x="55" y="28" font-size="14" font-weight="800" fill="#fff" text-anchor="middle" font-family="Arial">STC Pay</text>
+        </svg>
+      </div>
+    </div>
 
     <div class="social-proof">
       <div class="sp-avatars">
