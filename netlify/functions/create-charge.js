@@ -50,7 +50,7 @@ exports.handler = async (event) => {
       customer_initiated: true,
       threeDSecure: true,
       save_card: false,
-      description: 'شيًك — تقرير مهني شخصي',
+      description: 'شيًك',
       metadata: { product: 'cheekcv-report' },
       reference: { transaction: 'cheekcv-' + Date.now(), order: 'order-' + Date.now() },
       receipt: { email: true, sms: false },
