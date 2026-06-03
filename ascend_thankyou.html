@@ -161,6 +161,28 @@ for(let i=0;i<40;i++){
 </script>
 
 <script>
+// ── Send report by email ──
+(async function sendReportEmail() {
+  try {
+    const D = JSON.parse(localStorage.getItem('cheek_analysis_v2') || 'null');
+    // Try to get email from URL params (Tap redirects back with charge info)
+    const params = new URLSearchParams(window.location.search);
+    const tapChargeId = params.get('tap_id') || params.get('charge_id') || '';
+
+    // Get email from localStorage (saved during payment flow)
+    const email = localStorage.getItem('cheek_customer_email') || '';
+
+    if (email && D && D.archetype) {
+      await fetch('/.netlify/functions/send-report', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, reportData: D })
+      });
+    }
+  } catch(e) { /* silent fail */ }
+})();
+
+// ── Countdown ──
 let secs = 5;
 const cd = document.getElementById('countdown');
 const timer = setInterval(() => {

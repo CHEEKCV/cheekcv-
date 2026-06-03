@@ -497,6 +497,9 @@ async function startPayment() {
 
   const btn = document.getElementById('payBtn');
   const readBtn = document.querySelector('.read-more-btn');
+  // Save email for use after payment redirect
+  localStorage.setItem('cheek_customer_email', email);
+
   if (btn) { btn.textContent = '⏳ جاري التحضير...'; btn.disabled = true; }
   if (readBtn) { readBtn.disabled = true; }
 
