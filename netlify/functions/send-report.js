@@ -28,11 +28,22 @@ function brevoPost(body) {
   });
 }
 
+function sec(title, content) {
+  return `<div style="background:#fff;border:2px solid #1a1a1a;border-top:none;padding:20px;">
+    <h3 style="font-size:14px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid #e8e8e0;">${title}</h3>
+    ${content}
+  </div>`;
+}
+
 function buildEmailHTML(d) {
-  const strengths = (d.strengths || []).map(s => `<li style="margin-bottom:8px;">${s}</li>`).join('');
-  const weaknesses = (d.weaknesses || []).map(w => `<li style="margin-bottom:8px;">${w}</li>`).join('');
-  const recs = (d.recommendations || []).map(r => `<li style="margin-bottom:8px;"><strong>${r.title || ''}</strong> — ${r.desc || r.description || ''}</li>`).join('');
-  const jobs = (d.jobs || []).map(j => `<li style="margin-bottom:8px;">${j.title} — <strong>${j.salary}</strong></li>`).join('');
+  const strengths  = (d.strengths||[]).map(s=>`<li style="margin-bottom:8px;">${s}</li>`).join('');
+  const weaknesses = (d.weaknesses||[]).map(w=>`<li style="margin-bottom:8px;">${w}</li>`).join('');
+  const recs       = (d.recommendations||[]).map(r=>`<li style="margin-bottom:8px;"><strong>${r.title||''}</strong> — ${r.desc||r.description||''}</li>`).join('');
+  const paths      = (d.career_paths||[]).map(p=>`<li style="margin-bottom:8px;"><strong>${p.title||''}</strong> — ${p.desc||p.description||''} <span style="background:#1a1a1a;color:#F0C93A;padding:2px 8px;border-radius:99px;font-size:11px;">توافق ${p.match||0}%</span></li>`).join('');
+  const courses    = (d.courses||[]).map(c=>`<li style="margin-bottom:10px;"><strong>${c.title||''}</strong><br><span style="color:#8B6914;font-size:13px;">${c.reason||''}</span></li>`).join('');
+  const jobs       = (d.jobs||[]).map(j=>`<li style="margin-bottom:8px;">${j.title} — <strong>${j.salary}</strong><br><span style="color:#666;font-size:12px;">${j.reason||''}</span></li>`).join('');
+  const market     = (d.market_cards||[]).map(m=>`<li style="margin-bottom:8px;"><strong>${m.label||''}</strong><br>${m.text||''}</li>`).join('');
+  const insights   = (d.cv_insights||[]).map(i=>`<li style="margin-bottom:8px;"><strong>${i.label||''}</strong><br>${i.text||''}</li>`).join('');
 
   return `<!DOCTYPE html>
 <html dir="rtl" lang="ar">
@@ -70,29 +81,14 @@ function buildEmailHTML(d) {
     </table>
   </div>
 
-  <div style="background:#fff;border:2px solid #1a1a1a;border-top:none;padding:20px;margin-bottom:2px;">
-    <h3 style="font-size:14px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid #e8e8e0;">⚡ نقاط قوتك</h3>
-    <ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${strengths}</ul>
-  </div>
-
-  <div style="background:#fff;border:2px solid #1a1a1a;border-top:none;padding:20px;margin-bottom:2px;">
-    <h3 style="font-size:14px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid #e8e8e0;">🚨 نقاط الضعف</h3>
-    <ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${weaknesses}</ul>
-  </div>
-
-  <div style="background:#fff;border:2px solid #1a1a1a;border-top:none;padding:20px;margin-bottom:2px;">
-    <h3 style="font-size:14px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid #e8e8e0;">🎯 توصيات التطوير</h3>
-    <ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${recs}</ul>
-  </div>
-
-  <div style="background:#fff;border:2px solid #1a1a1a;border-top:none;padding:20px;">
-    <h3 style="font-size:14px;font-weight:800;margin:0 0 12px;padding-bottom:8px;border-bottom:1.5px solid #e8e8e0;">💰 الوظائف والرواتب</h3>
-    <ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${jobs}</ul>
-  </div>
-
-  <div style="text-align:center;margin:20px 0;">
-    <a href="https://cheekcv.xyz" style="display:inline-block;background:#F0C93A;color:#1a1a1a;font-weight:800;padding:14px 28px;border-radius:12px;text-decoration:none;font-size:15px;">افتح التقرير الكامل 🔓</a>
-  </div>
+  ${sec('⚡ نقاط قوتك', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${strengths}</ul>`)}
+  ${sec('🚨 نقاط الضعف', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${weaknesses}</ul>`)}
+  ${sec('📊 تحليل سيرتك الذاتية', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${insights}</ul>`)}
+  ${sec('🎯 توصيات التطوير', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${recs}</ul>`)}
+  ${sec('🔮 المسارات المهنية', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${paths}</ul>`)}
+  ${sec('📚 الدورات الموصى بها', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${courses}</ul>`)}
+  ${sec('📈 تقييم السوق', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${market}</ul>`)}
+  ${sec('💰 الوظائف والرواتب', `<ul style="margin:0;padding-right:20px;font-size:14px;line-height:1.8;">${jobs}</ul>`)}
 
   <div style="background:#1a1a1a;border-radius:0 0 16px 16px;padding:16px;text-align:center;">
     <p style="color:rgba(255,255,255,0.5);font-size:12px;margin:0;">شيًك · cheekcv.xyz · صُنع بـ ❤️ في الرياض</p>
