@@ -45,8 +45,8 @@ exports.handler = async (event) => {
     const { customerEmail, customerName } = JSON.parse(event.body || '{}');
 
     const charge = await tapPost({
-      amount: 1,
-      currency: 'SAR',
+      amount: 3.99,
+      currency: 'USD',
       customer_initiated: true,
       threeDSecure: true,
       save_card: false,
