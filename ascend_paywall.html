@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>شيًك — تقريرك المهني</title>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://gumroad.com/js/gumroad.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 :root{
@@ -258,7 +257,7 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
   <div class="archetype-badge">🎭 شخصيتك المهنية</div>
   <h1 class="hero-name" id="heroName">جاري التحميل...</h1>
   <p class="hero-sub" id="heroSub"></p>
-  <a class="read-more-btn" href="https://cheekcv.gumroad.com/l/cheekcv?wanted=true" data-gumroad-overlay-checkout="true">أكمل قراءة التقرير واكتشف ما لا تعرفه عن نفسك 🔓</a>
+  <button class="read-more-btn" onclick="startPayment()">أكمل قراءة التقرير واكتشف ما لا تعرفه عن نفسك 🔓</button>
   <div class="score-strip" id="scoreStrip">
     <div class="score-item"><span class="score-num">—</span><span class="score-label">سنوات خبرة</span></div>
     <div class="score-item"><span class="score-num">—</span><span class="score-label">شركات</span></div>
@@ -347,9 +346,9 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
       <span class="pill" style="background:#E5E5FF;border-color:#9090D8;animation-delay:.35s">🔥 ليه ما اتوظفت للحين؟</span>
     </div>
 
-    <a class="pay-btn" href="https://cheekcv.gumroad.com/l/cheekcv?wanted=true" data-gumroad-overlay-checkout="true" style="display:block;text-decoration:none;">
+    <button class="pay-btn" id="payBtn" onclick="startPayment()">
       افتح تقريرك 🔓
-    </a>
+    </button>
 
     <div class="social-proof">
       <div class="sp-avatars">
@@ -362,7 +361,7 @@ footer{width:100%;border-top:2px solid var(--black);background:var(--white);padd
     </div>
 
     <div class="privacy-note">
-      🔒 <span>دفع آمن عبر Gumroad · لا نحتفظ بأي بيانات</span>
+      🔒 <span>دفع آمن عبر Tap Payments · مدى · Apple Pay · بطاقات ائتمان</span>
     </div>
   </div>
 
@@ -423,28 +422,34 @@ if (D && D.archetype) {
     '<div class="score-item"><span class="score-num">' + trend + '</span><span class="score-label">اتجاه المسيرة</span></div>';
 }
 
-// ── Listen for Gumroad purchase completion ──
-window.addEventListener('message', function(e) {
-  if (e.origin.indexOf('gumroad.com') === -1) return;
-  try {
-    const data = typeof e.data === 'string' ? JSON.parse(e.data) : e.data;
-    if (data && (data.type === 'purchase' || data.post_url || data.sale_id)) {
-      // Purchase completed — go to report
-      window.location.href = 'ascend_thankyou.html';
-    }
-  } catch(err) {}
-});
+// ── Tap Payments ──
+async function startPayment() {
+  const btn = document.getElementById('payBtn');
+  const readBtn = document.querySelector('.read-more-btn');
+  if (btn) { btn.textContent = '⏳ جاري التحضير...'; btn.disabled = true; }
+  if (readBtn) { readBtn.disabled = true; }
 
-// Fallback: poll for overlay close after payment
-// Gumroad adds ?sale_id= to URL on some flows
-(function checkSaleId() {
-  if (window.location.search.indexOf('sale_id') !== -1 ||
-      window.location.search.indexOf('purchase') !== -1) {
-    window.location.href = 'ascend_thankyou.html';
-    return;
+  try {
+    const res = await fetch('/.netlify/functions/create-charge', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ customerEmail: '', customerName: '' })
+    });
+    const data = await res.json();
+
+    if (data.url) {
+      window.location.href = data.url;
+    } else {
+      alert('حصل خطأ في الدفع: ' + (data.error || 'حاول مرة ثانية'));
+      if (btn) { btn.textContent = 'افتح تقريرك 🔓'; btn.disabled = false; }
+      if (readBtn) { readBtn.disabled = false; }
+    }
+  } catch(e) {
+    alert('تعذر الاتصال، تحقق من الإنترنت وحاول مرة ثانية');
+    if (btn) { btn.textContent = 'افتح تقريرك 🔓'; btn.disabled = false; }
+    if (readBtn) { readBtn.disabled = false; }
   }
-  setTimeout(checkSaleId, 1000);
-})();
+}
 </script>
 </body>
 </html>
