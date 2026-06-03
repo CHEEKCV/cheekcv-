@@ -1,11 +1,7 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 56">
   <rect width="140" height="56" fill="white"/>
-  <!-- Blue block -->
-  <rect x="8" y="8" width="30" height="18" rx="2" fill="#0071BC"/>
-  <!-- Green block -->
-  <rect x="8" y="30" width="30" height="18" rx="2" fill="#39B54A"/>
-  <!-- Arabic مدى -->
-  <text x="82" y="28" font-size="20" font-weight="700" fill="#231F20" text-anchor="middle" font-family="Arial,sans-serif">مدى</text>
-  <!-- English mada -->
-  <text x="82" y="46" font-size="14" font-weight="400" fill="#39B54A" text-anchor="middle" font-family="Arial,sans-serif" letter-spacing="1">mada</text>
+  <rect x="8" y="7" width="32" height="19" rx="2" fill="#0071BC"/>
+  <rect x="8" y="30" width="32" height="19" rx="2" fill="#39B54A"/>
+  <text x="88" y="30" font-size="22" font-weight="900" fill="#1a1a1a" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif">مدى</text>
+  <text x="88" y="46" font-size="13" font-weight="500" fill="#39B54A" text-anchor="middle" font-family="'Helvetica Neue',Arial,sans-serif" letter-spacing="2">mada</text>
 </svg>
